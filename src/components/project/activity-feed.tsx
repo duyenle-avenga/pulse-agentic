@@ -7,7 +7,9 @@ export function ActivityFeed({ events, now }: { events: ActivityEvent[]; now: Is
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Recent activity</CardTitle>
+        <CardTitle>
+          <h2 className="font-heading m-0 text-base font-medium leading-snug">Recent activity</h2>
+        </CardTitle>
       </CardHeader>
       <CardContent>
         {events.length === 0 ? (

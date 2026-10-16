@@ -6,7 +6,9 @@ export function AcStateBar({ counts, total }: { counts: Record<AcState, number>;
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Acceptance criteria by state</CardTitle>
+        <CardTitle>
+          <h2 className="font-heading m-0 text-base font-medium leading-snug">Acceptance criteria by state</h2>
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         {/* gap-0.5 keeps a 2px gap between segments, so neighbours are not told apart by hue alone */}

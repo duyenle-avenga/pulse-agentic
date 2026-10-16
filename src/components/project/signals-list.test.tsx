@@ -14,6 +14,7 @@ const signal: Signal = {
 describe('SignalsList', () => {
   it('shows each signal with severity, age, action and links', () => {
     render(<SignalsList signals={[signal]} now={NOW} />)
+    expect(screen.getByRole('heading', { level: 2, name: 'Top signals' })).toBeInTheDocument()
     expect(screen.getByText('medium')).toBeInTheDocument()
     expect(screen.getByText('3 h ago')).toBeInTheDocument()
     expect(screen.getByText(signal.message)).toBeInTheDocument()

@@ -19,7 +19,9 @@ export default async function ProjectOverviewPage({ params }: { params: Promise<
       <AcStateBar counts={overview.rollup.counts} total={overview.rollup.total} />
       <Card>
         <CardHeader>
-          <CardTitle>Burn-up by acceptance criteria</CardTitle>
+          <CardTitle>
+            <h2 className="font-heading m-0 text-base font-medium leading-snug">Burn-up by acceptance criteria</h2>
+          </CardTitle>
           <CardDescription>Scope, delivered and verified ACs per day</CardDescription>
         </CardHeader>
         <CardContent>

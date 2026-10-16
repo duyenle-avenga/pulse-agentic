@@ -12,7 +12,9 @@ export function SignalsList({ signals, now }: { signals: Signal[]; now: IsoDateT
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Top signals</CardTitle>
+        <CardTitle>
+          <h2 className="font-heading m-0 text-base font-medium leading-snug">Top signals</h2>
+        </CardTitle>
       </CardHeader>
       <CardContent>
         {signals.length === 0 ? (
