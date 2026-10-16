@@ -22,9 +22,12 @@ export interface EvidenceInput {
 }
 
 type AcEvent =
-  | { kind: 'opened'; at: IsoDateTime; order: 0 }
-  | { kind: 'merged'; at: IsoDateTime; order: 1; pr: PullRequest }
+  | { kind: 'opened'; at: IsoDateTime; order: 0; prNumber: number }
+  | { kind: 'merged'; at: IsoDateTime; order: 1; prNumber: number; pr: PullRequest }
   | { kind: 'tested'; at: IsoDateTime; order: 2; result: HumanTestResult }
+
+/** Only 'opened'/'merged' events carry a PR number; 'tested' events tie-break before any of those. */
+const prNumberOf = (event: AcEvent): number => (event.kind === 'tested' ? 0 : event.prNumber)
 
 const NOT_YET_DELIVERED: readonly AcState[] = ['not_started', 'in_progress']
 
@@ -38,15 +41,15 @@ export function deriveAcStates({ project, tasks, prs, humanTests }: EvidenceInpu
     const events: AcEvent[] = []
     for (const pr of prs) {
       if (pr.state === 'closed' || !touches(pr, ac.id)) continue
-      events.push({ kind: 'opened', at: pr.openedAt, order: 0 })
-      if (pr.state === 'merged' && pr.mergedAt) events.push({ kind: 'merged', at: pr.mergedAt, order: 1, pr })
+      events.push({ kind: 'opened', at: pr.openedAt, order: 0, prNumber: pr.number })
+      if (pr.state === 'merged' && pr.mergedAt) events.push({ kind: 'merged', at: pr.mergedAt, order: 1, prNumber: pr.number, pr })
     }
     if (ac.humanTest) {
       for (const result of humanTests) {
         if (result.acId === ac.id) events.push({ kind: 'tested', at: result.testedAt, order: 2, result })
       }
     }
-    events.sort((a, b) => Date.parse(a.at) - Date.parse(b.at) || a.order - b.order)
+    events.sort((a, b) => Date.parse(a.at) - Date.parse(b.at) || a.order - b.order || prNumberOf(a) - prNumberOf(b))
 
     let state: AcState = 'not_started'
     const history: AcTransition[] = []
@@ -78,5 +81,7 @@ function nextRegularState(state: AcState, event: AcEvent, acId: string): AcState
 function nextHumanState(state: AcState, event: AcEvent): AcState {
   if (event.kind === 'opened') return state === 'not_started' ? 'in_progress' : state
   if (event.kind === 'merged') return NOT_YET_DELIVERED.includes(state) ? 'pending_user_testing' : state
+  // Not yet delivered: a human result recorded before the touching PR merged doesn't count.
+  if (NOT_YET_DELIVERED.includes(state)) return state
   return event.result.result === 'pass' ? 'verified' : 'failing'
 }

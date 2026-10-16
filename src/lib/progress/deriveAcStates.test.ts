@@ -115,6 +115,75 @@ describe('deriveAcStates: 👤 ACs', () => {
     expect(s.state).toBe('failing')
     expect(s.history.map((h) => h.state)).toEqual(['in_progress', 'pending_user_testing', 'verified', 'failing'])
   })
+
+  it('ignores a human test recorded before the touching PR is merged', () => {
+    const s = statusOf('AC-2', [mergedPr(5)], [humanTest('pass', 3)])
+    expect(s.state).toBe('pending_user_testing')
+  })
+
+  it('ignores a human test when no PR has touched the AC at all', () => {
+    expect(statusOf('AC-2', [], [humanTest('pass', 3)]).state).toBe('not_started')
+  })
+})
+
+describe('deriveAcStates: determinism', () => {
+  const sameInstant = at(10, 4, 17)
+  const failedAt4 = pr('p', {
+    number: 4, title: 'T-1 #4', taskIds: ['T-1'], state: 'merged',
+    openedAt: at(10, 1), mergedAt: sameInstant, ci: 'passing', testPlan: [failedItem('AC-1', 'e2e')],
+  })
+  const tickedAt5 = pr('p', {
+    number: 5, title: 'T-1 #5', taskIds: ['T-1'], state: 'merged',
+    openedAt: at(10, 1), mergedAt: sameInstant, ci: 'passing', testPlan: [ticked('AC-1', 'unit')],
+  })
+
+  it('ties same-instant merges by PR number, regardless of input order', () => {
+    expect(statusOf('AC-1', [tickedAt5, failedAt4]).state).toBe('verified')
+    expect(statusOf('AC-1', [failedAt4, tickedAt5]).state).toBe('verified')
+  })
+})
+
+describe('deriveAcStates: pinned behaviour', () => {
+  it('a later ticked + passing PR recovers a regressed AC to verified', () => {
+    const s = statusOf('AC-1', [
+      mergedPr(2, { testPlan: [ticked('AC-1', 'unit')] }),
+      mergedPr(4, { testPlan: [failedItem('AC-1', 'e2e')] }),
+      mergedPr(6, { testPlan: [ticked('AC-1', 'unit')] }),
+    ])
+    expect(s.state).toBe('verified')
+  })
+
+  it('failing followed by another failed report stays failing, not regressed', () => {
+    const s = statusOf('AC-1', [
+      mergedPr(2, { testPlan: [failedItem('AC-1', 'e2e')] }),
+      mergedPr(4, { testPlan: [failedItem('AC-1', 'e2e')] }),
+    ])
+    expect(s.state).toBe('failing')
+  })
+
+  it('a later merged PR without the AC in its test plan leaves a failing AC failing', () => {
+    const s = statusOf('AC-1', [
+      mergedPr(2, { testPlan: [failedItem('AC-1', 'e2e')] }),
+      mergedPr(4),
+    ])
+    expect(s.state).toBe('failing')
+  })
+
+  it('an open PR opened after a merge does not move a verified AC back to in_progress', () => {
+    const s = statusOf('AC-1', [mergedPr(2, { testPlan: [ticked('AC-1', 'unit')] }), openPr(4)])
+    expect(s.state).toBe('verified')
+  })
+
+  it('an unticked item on a merged PR with CI failing gives implemented', () => {
+    expect(statusOf('AC-1', [mergedPr(2, { ci: 'failing', testPlan: [unticked('AC-1')] })]).state).toBe('implemented')
+  })
+
+  it('ignores human test results for a regular (non-👤) AC', () => {
+    const s = statusOf('AC-1', [mergedPr(2)], [
+      { acId: 'AC-1', result: 'pass', environment: 'staging', tester: 'Tess', testedAt: at(10, 3, 12) },
+    ])
+    expect(s.state).toBe('implemented')
+  })
 })
 
 describe('deriveAcStates: scope versions', () => {
