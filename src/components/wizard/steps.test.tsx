@@ -43,9 +43,10 @@ describe('QuestionsStep', () => {
 })
 
 describe('ReviewStep', () => {
-  const props = { features: draft.scope.features, onDecide: vi.fn(), onApproveAll: vi.fn(), onLock: vi.fn() }
+  const makeProps = () => ({ features: draft.scope.features, onDecide: vi.fn(), onApproveAll: vi.fn(), onLock: vi.fn() })
 
   it('lists every story and keeps Lock disabled until all are decided', () => {
+    const props = makeProps()
     render(<ReviewStep {...props} decisions={EMPTY_DECISIONS} />)
     expect(screen.getByText('0 of 7 stories decided')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Lock v1' })).toBeDisabled()
@@ -57,6 +58,7 @@ describe('ReviewStep', () => {
   })
 
   it('enables Lock when every story is decided and at least one is approved', () => {
+    const props = makeProps()
     render(<ReviewStep {...props} decisions={{ ...all('approved'), stories: { ...all('approved').stories, 'US-4.1': 'rejected' } }} />)
     expect(screen.getByText('7 of 7 stories decided')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Approve US-1.1' })).toHaveAttribute('aria-pressed', 'true')
@@ -65,6 +67,7 @@ describe('ReviewStep', () => {
   })
 
   it('keeps Lock disabled when every story is rejected', () => {
+    const props = makeProps()
     render(<ReviewStep {...props} decisions={all('rejected')} />)
     expect(screen.getByRole('button', { name: 'Lock v1' })).toBeDisabled()
     expect(screen.getByText('Approve at least one story to lock v1.')).toBeInTheDocument()
@@ -82,7 +85,7 @@ describe('LockedStep', () => {
     expect(screen.getByRole('heading', { name: 'Generated tasks (16)' })).toBeInTheDocument()
     expect(screen.queryByText(/AC-4\.1\.1/)).not.toBeInTheDocument()
     const t08 = screen.getByText(/^T-08 · No self-approval/).closest('[data-slot="card"]') as HTMLElement
-    expect(within(t08).getByRole('button', { name: 'Copy as Markdown' })).toBeInTheDocument()
+    expect(within(t08).getByRole('button', { name: 'Copy T-08 as Markdown' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Open project overview' })).toHaveAttribute('href', '/projects/intelligent-flow-v2')
     expect(screen.getByRole('link', { name: 'Back to portfolio' })).toHaveAttribute('href', '/')
     fireEvent.click(screen.getByRole('button', { name: 'Reset demo' }))

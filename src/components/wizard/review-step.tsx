@@ -61,7 +61,7 @@ function StoryCard({ story, decision, onDecide }: { story: UserStory; decision?:
           {story.acs.map((a) => (
             <li key={a.id}>
               <span className="font-mono text-xs text-muted-foreground">{a.id}</span> {a.text}
-              {a.humanTest && <span title="Needs a human tester"> 👤</span>}
+              {a.humanTest && <span role="img" aria-label="Needs a human tester" title="Needs a human tester"> 👤</span>}
             </li>
           ))}
         </ul>

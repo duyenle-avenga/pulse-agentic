@@ -23,7 +23,7 @@ export function TaskTicket({ task, acs }: { task: Task; acs: AcceptanceCriterion
     <Card>
       <CardContent className="space-y-3">
         <pre className="whitespace-pre-wrap font-mono text-xs leading-relaxed">{markdown}</pre>
-        <Button size="sm" variant="outline" onClick={copy}>
+        <Button size="sm" variant="outline" aria-label={`Copy ${task.id} as Markdown`} onClick={copy}>
           {copied ? 'Copied' : 'Copy as Markdown'}
         </Button>
       </CardContent>
