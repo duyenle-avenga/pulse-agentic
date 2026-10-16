@@ -6,8 +6,8 @@ import { toPortfolioRow, toProjectHeader, toProjectOverview } from './view-model
 describe('view models', () => {
   it('builds a portfolio row', () => {
     expect(toPortfolioRow(customerPortal)).toMatchObject({
-      id: 'customer-portal', scopeLabel: 'v1.1', completionPct: 60, deliveryPct: 70, verified: 12, total: 20,
-      openWarnings: 3, highWarnings: 2, pendingApprovals: 0, pendingUserTesting: 0,
+      id: 'customer-portal', scopeLabel: 'v1.1', completionPct: 57, deliveryPct: 71, verified: 12, total: 21,
+      openWarnings: 3, highWarnings: 2, pendingApprovals: 1, pendingUserTesting: 1,
       lastActivityAt: '2026-10-15T14:00:00+02:00',
     })
   })
@@ -18,7 +18,7 @@ describe('view models', () => {
 
   it('builds an overview with warnings sorted by severity and the last 10 events', () => {
     const o = toProjectOverview(customerPortal)
-    expect(o.rollup.total).toBe(20)
+    expect(o.rollup.total).toBe(21)
     expect(o.topWarnings.map((s) => s.severity)).toEqual(['high', 'high', 'medium'])
     expect(o.activity).toHaveLength(10)
   })

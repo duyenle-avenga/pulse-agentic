@@ -36,7 +36,7 @@ describe('Project C: Intelligent Flow', () => {
     expect(JSON.stringify(intelligentFlow)).not.toMatch(/console/i)
   })
 
-  it('has unplanned-work, unchecked-ACs and pending-user-testing warnings', () => {
-    expect(intelligentFlow.warnings.map((s) => s.type).sort()).toEqual(['pending_user_testing', 'unchecked_acs_merged', 'unplanned_work'])
+  it('has unplanned-work and unchecked-ACs mock warnings (pending user testing is computed)', () => {
+    expect(intelligentFlow.warnings.map((s) => s.type).sort()).toEqual(['unchecked_acs_merged', 'unplanned_work'])
   })
 })

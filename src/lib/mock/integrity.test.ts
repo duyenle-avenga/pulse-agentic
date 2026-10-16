@@ -84,4 +84,36 @@ describe.each(ALL_PROJECTS.map((d) => [d.project.id, d] as const))('mock integri
       )
     }
   })
+
+  it('ties SCR proposals to known features, stories and ACs', () => {
+    const featureIds = project.scopeVersions.flatMap((v) => v.features.map((f) => f.id))
+    for (const s of scrs) {
+      if (!s.proposal) continue
+      for (const a of s.proposal.addStories) if (!a.featureTitle) expect(featureIds, `${s.id} → ${a.featureId}`).toContain(a.featureId)
+      for (const a of s.proposal.addAcs) expect(storyIds, `${s.id} → ${a.storyId}`).toContain(a.storyId)
+      for (const c of s.proposal.changeAcs) expect(acIds, `${s.id} → ${c.acId}`).toContain(c.acId)
+      for (const id of s.proposal.removeAcIds) expect(acIds, `${s.id} → ${id}`).toContain(id)
+    }
+  })
+
+  it('gives pending SCRs new AC and task ids', () => {
+    for (const s of scrs) {
+      if (s.status !== 'pending' || !s.proposal) continue
+      const newAcIds = [...s.proposal.addStories.flatMap((a) => a.story.acs.map((x) => x.id)), ...s.proposal.addAcs.map((a) => a.ac.id)]
+      for (const id of newAcIds) expect(acIds, `${s.id} → ${id}`).not.toContain(id)
+      for (const t of s.proposal.tasks) expect(taskIds, `${s.id} → ${t.id}`).not.toContain(t.id)
+    }
+  })
+
+  it('records who decided every decided SCR, and when', () => {
+    for (const s of scrs) {
+      if (s.status === 'pending') continue
+      expect(s.decidedAt, s.id).toBeDefined()
+      expect(s.decidedBy, s.id).toBeDefined()
+    }
+  })
+
+  it('leaves pending decisions and pending user testing to be computed', () => {
+    expect(warnings.filter((w) => w.type === 'pending_decision' || w.type === 'pending_user_testing')).toEqual([])
+  })
 })

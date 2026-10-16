@@ -13,8 +13,8 @@ describe('MockRepository.getPortfolio', () => {
 
     const portal = rows[1]
     expect(portal).toMatchObject({
-      scopeLabel: 'v1.1', completionPct: 60, deliveryPct: 70, verified: 12, total: 20,
-      openWarnings: 3, highWarnings: 2, pendingApprovals: 0, pendingUserTesting: 0,
+      scopeLabel: 'v1.1', completionPct: 57, deliveryPct: 71, verified: 12, total: 21,
+      openWarnings: 3, highWarnings: 2, pendingApprovals: 1, pendingUserTesting: 1,
       lastActivityAt: '2026-10-15T14:00:00+02:00',
     })
     expect(rows[0].pendingApprovals).toBe(1)
@@ -34,7 +34,7 @@ describe('MockRepository.getProjectOverview', () => {
   it('returns rollup, top warnings and activity', async () => {
     const o = await repo.getProjectOverview('customer-portal')
     if (!o) throw new Error('expected an overview')
-    expect(o.rollup.total).toBe(20)
+    expect(o.rollup.total).toBe(21)
     expect(o.activity).toHaveLength(10)
     expect(o.topWarnings.length).toBeLessThanOrEqual(5)
     const ranks = o.topWarnings.map((s) => SEVERITY_RANK[s.severity])
