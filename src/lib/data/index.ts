@@ -9,7 +9,7 @@ export type { PortfolioRow, ProjectHeaderData, ProjectOverview, PulseRepository 
 let repository: PulseRepository | undefined
 
 export function getRepository(): PulseRepository {
-  repository ??= createMockRepository(ALL_PROJECTS, DEMO_NOW)
+  repository ??= createMockRepository(ALL_PROJECTS)
   return repository
 }
 
