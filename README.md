@@ -43,7 +43,7 @@ Pulse today measures AI adoption and productivity for **traditional, sprint‑ba
 | **Evidence** | Proof that an AC passes or fails, taken from the PR: the ticked or unticked test plan item, how it was tested (unit, integration, e2e/Playwright, manual), the test file, the PR's CI result, commit SHA and timestamp. |
 | **Scope change request (SCR)** | A proposed addition, change or removal of scope. Agents (via PRs), humans, or Pulse's own analysis can raise one. A human must approve it. |
 | **Changelog** | An append‑only audit trail of scope decisions: what changed, why, who proposed it, who approved it, and when. |
-| **Signal** | An automatically detected risk or blocker with a suggested action, e.g. *CI has been red on `main` for 6 h*. |
+| **Warning** | An automatically detected risk or blocker with a suggested action, e.g. *CI has been red on `main` for 6 h*. |
 
 ### Hierarchy
 
@@ -78,7 +78,7 @@ flowchart LR
     I --> J[Pulse generates<br/>technical tasks]
     J --> K[Agents implement<br/>with any framework]
     K --> L[Pulse reads PR test plans<br/>and CI checks hourly]
-    L --> M[Progress, signals<br/>and change requests]
+    L --> M[Progress, warnings<br/>and change requests]
     M -- scope change approved --> N[Scope v1.x]
     N --> J
 ```
@@ -213,11 +213,11 @@ sequenceDiagram
 
 Each changelog entry records: **version from → to**, **diff** (added, changed or removed features, stories and ACs), **source** (agent PR #, human, or Pulse suggestion), **rationale**, **proposed by**, **approved/rejected by**, and a **timestamp**. The changelog is append‑only.
 
-### 3.5 Signals and suggestions
+### 3.5 Warnings and suggestions
 
-Pulse watches delivery data and raises signals, each with a suggested action:
+Pulse watches delivery data and raises warnings, each with a suggested action:
 
-| Signal | Example trigger | Suggested action |
+| Warning | Example trigger | Suggested action |
 |---|---|---|
 | Stalled task | No commits or PR activity for N hours on an in‑progress task | Re‑prompt the agent, split the task, or check if it's blocked |
 | Unchecked ACs merged | PR merged with some of its task's ACs unticked or missing from the test plan | Open a follow‑up task, or confirm the AC moves to a later task |
@@ -256,12 +256,12 @@ flowchart TB
         API[Route handlers / server actions]
         PLAN[Planner service<br/>LLM: scope + task generation]
         TRACE[Traceability engine<br/>parse PR test plans → tasks/ACs]
-        SIG[Signals engine<br/>rules → blockers + suggestions]
+        WRN[Warnings engine<br/>rules → blockers + suggestions]
         DB2[(Agentic DB<br/>scope versions, ACs, evidence,<br/>SCRs, changelog)]
         UI --> API
         API --> PLAN
         API --> TRACE
-        API --> SIG
+        API --> WRN
         API --> DB2
     end
 
@@ -283,7 +283,7 @@ All source data comes through the **existing Pulse ETL**. Pulse Agentic adds no 
 
 - **Planner service:** an LLM that drafts scope from a description or an imported backlog, generates technical tasks, and analyses the impact of SCRs. It only proposes; a human always approves. *(Mocked in the POC.)*
 - **Traceability engine:** reads PRs (title, description, state, checks) from the Pulse DB, parses the test plan checklist, and links each item to tasks and ACs.
-- **Signals engine:** a rule-based detector (LLM‑assisted suggestions later) that produces blockers, risks and recommended actions.
+- **Warnings engine:** a rule-based detector (LLM‑assisted suggestions later) that produces blockers, risks and recommended actions.
 - **Agentic DB:** stores what only this app owns (scope versions, tasks, AC evidence, SCRs, changelog), separate from the Pulse KPI DB.
 - **Metabase tab:** the existing Pulse dashboards, embedded via Metabase signed embedding.
 
@@ -297,9 +297,9 @@ The POC demonstrates the end‑to‑end story with **mock data only**. There is 
 
 | Screen | What it shows |
 |---|---|
-| **Portfolio** | All agentic projects: completion %, delivery %, open signals, pending approvals, pending user testing |
-| **New project wizard** | Describe → generated features, stories and ACs (mock planner) → edit → approve and lock v1 → generated tasks |
-| **Project overview** | Progress (verified vs implemented), burn‑up by AC, top signals, **pending user testing** count, recent activity |
+| **Portfolio** | All agentic projects: completion %, delivery %, open warnings, pending approvals, pending user testing |
+| **New project wizard** | Describe → clarifying questions → generated features, stories and ACs (mock planner) → edit → approve and lock v1 → generated tasks (POC: a click‑through demo that creates *Intelligent Flow v2* from prefilled planner JSON, with no edit step; only approvals and the v1 lock are stored, in localStorage) |
+| **Project overview** | Progress (verified vs implemented), AC state breakdown, top warnings, **pending user testing** count, recent activity |
 | **User testing** | Queue of 👤 ACs waiting for a human; record pass or fail with environment, tester, date and notes |
 | **Scope** | Tree of features → stories → ACs with status. Version switcher and diff between versions. |
 | **Tasks** | Technical tasks with status, linked ACs, PRs and agent. Board or list view. |
@@ -311,7 +311,7 @@ The POC demonstrates the end‑to‑end story with **mock data only**. There is 
 ### Demo data
 
 - **Project A, greenfield, no board** (*"Expense tracker"*): Pulse acts as the board. Fresh Scope v1, agents mid‑way, one pending SCR raised by an agent.
-- **Project B, brownfield** (*existing repo + GitHub Issues*): baseline gap report, one regression, red‑main signal.
+- **Project B, brownfield** (*existing repo + GitHub Issues*): baseline gap report, one regression, red‑main warning.
 - **Project C, brownfield, real internal project: [Intelligent Flow](https://github.com/Avenga-Engineering-Acceleration/intelligent-flow)** (Jira `CTOACT` + GitHub):
   - **What it is:** an internal product that wraps Claude Code in an SDLC flow with human governance gates. Each stage waits for a named person's approval in a dashboard, and every decision is stored so an audit **Evidence Pack** can be generated.
   - **Stack:** NestJS, Postgres, web dashboard.
@@ -339,7 +339,7 @@ Real GitHub, Jira or CI integrations · authentication and roles · real LLM cal
 4. **Board write‑back:** create tasks as GitHub issues or Jira tickets, add missing ACs, flag tickets with missing info, and comment scope changes on the ticket.
 5. **Stronger evidence (optional per project):** where we can add a CI step, upload JUnit / Playwright reports so Pulse can check each ticked AC against a real test result.
 6. **Agent hand‑off:** possibly an **MCP server** so agents can pull their next task and its ACs directly.
-7. **Signals v2:** LLM‑generated root‑cause hints and suggested re‑prompts.
+7. **Warnings v2:** LLM‑generated root‑cause hints and suggested re‑prompts.
 8. **Governance:** roles (approver, viewer), approval policies (e.g. security‑related SCRs need a tech lead).
 9. **Agentic KPIs:** AC verification lead time, scope churn, agent PR acceptance rate, rework rate, human‑intervention rate, and cost per verified AC (if token usage is available).
 

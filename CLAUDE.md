@@ -1,6 +1,6 @@
 # Pulse Agentic
 
-Read `README.md` first. It is the agreed design (purpose, concepts, evidence model, screens, decisions). `docs/demo/intelligent-flow-scope.md` is the mock data for demo Project C.
+Read `README.md` first. It is the agreed design (purpose, concepts, evidence model, screens, decisions). `ARCHITECTURE.md` describes the code layout and data flow. `docs/demo/intelligent-flow-scope.md` is the mock data for demo Project C.
 
 ## POC rules
 - Next.js (App Router, TypeScript), Tailwind CSS, shadcn/ui, Recharts via shadcn charts.

@@ -1,0 +1,13 @@
+{
+  "projectId": "intelligent-flow-v2",
+  "name": "Intelligent Flow v2",
+  "goal": "Work items move through an AI-assisted SDLC (Claude Code agents), stopping at governance gates where a named person must decide. Every decision is recorded, so an Evidence Pack can be produced for audit.",
+  "users": "Client team members who raise work, approvers and delivery leads who decide at each gate, and auditors who review the evidence.",
+  "constraints": "Nothing moves forward without a named person deciding. Every decision must be traceable to the artifact it was made against.",
+  "tech": "NestJS, Postgres, a web dashboard, Claude Code agents.",
+  "nonGoals": "Replacing Jira or Slack. Changing how client teams write code.",
+  "approver": "Demo approver",
+  "repoUrl": "https://github.com/Avenga-Engineering-Acceleration/intelligent-flow",
+  "board": "jira",
+  "boardKey": "CTOACT"
+}

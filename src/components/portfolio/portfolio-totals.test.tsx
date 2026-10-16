@@ -1,0 +1,28 @@
+import { render, screen, within } from '@testing-library/react'
+import { describe, expect, it } from 'vitest'
+import type { PortfolioRow } from '@/lib/data'
+import { PortfolioTotals } from './portfolio-totals'
+
+const base: PortfolioRow = {
+  id: 'a', name: 'A', kind: 'greenfield', board: 'none', scopeLabel: 'v1', completionPct: 0, deliveryPct: 0,
+  verified: 0, total: 0, openWarnings: 3, highWarnings: 0, pendingApprovals: 1, pendingUserTesting: 0, lastActivityAt: null,
+}
+
+function getCard(label: string) {
+  const card = screen.getByText(label).closest('[data-slot="card"]')
+  if (!card) throw new Error(`No card found for label "${label}"`)
+  return card as HTMLElement
+}
+
+describe('PortfolioTotals', () => {
+  it('shows approvals, user testing and warnings, in that order, without a projects card', () => {
+    render(<PortfolioTotals rows={[base, { ...base, id: 'b', highWarnings: 2, pendingApprovals: 0, pendingUserTesting: 3 }]} />)
+    const labels = [...document.querySelectorAll('[data-slot="card-description"]')].map((el) => el.textContent)
+    expect(labels).toEqual(['Pending approvals', 'Pending user testing', 'Open warnings'])
+    expect(screen.queryByText('Projects')).not.toBeInTheDocument()
+    expect(within(getCard('Pending approvals')).getByText('1')).toBeInTheDocument()
+    expect(within(getCard('Pending user testing')).getByText('3')).toBeInTheDocument()
+    expect(within(getCard('Open warnings')).getByText('6')).toBeInTheDocument()
+    expect(screen.getByText('2 high')).toBeInTheDocument()
+  })
+})

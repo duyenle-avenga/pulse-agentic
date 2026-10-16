@@ -1,0 +1,228 @@
+{
+  "features": [
+    {
+      "id": "F1",
+      "title": "Work item intake",
+      "stories": [
+        {
+          "id": "US-1.1",
+          "text": "As a client team member, I want to start a work item from Jira or Slack, so I don’t need a new tool.",
+          "acs": [
+            {
+              "id": "AC-1.1.1",
+              "text": "A Jira comment that mentions the flow on a configured project creates one work item linked to the issue",
+              "humanTest": false
+            },
+            {
+              "id": "AC-1.1.2",
+              "text": "A Slack mention in a configured channel creates one work item and replies with its link",
+              "humanTest": false
+            },
+            {
+              "id": "AC-1.1.3",
+              "text": "The same comment or mention delivered twice creates only one work item",
+              "humanTest": false
+            },
+            {
+              "id": "AC-1.1.4",
+              "text": "A request from an unconfigured project or channel is refused and logged",
+              "humanTest": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "F2",
+      "title": "Flow and agent stages",
+      "stories": [
+        {
+          "id": "US-2.1",
+          "text": "As a delivery lead, I want each work item to go through defined stages (spec → plan → implement → review → deploy), so AI work follows our SDLC.",
+          "acs": [
+            {
+              "id": "AC-2.1.1",
+              "text": "A new work item starts at the first stage of its configured flow",
+              "humanTest": false
+            },
+            {
+              "id": "AC-2.1.2",
+              "text": "An agent stage launches a Claude Code run with the pinned context bundle and records its start and end",
+              "humanTest": false
+            },
+            {
+              "id": "AC-2.1.3",
+              "text": "The agent’s claim of what it produced is checked (artifact hash) before the work item moves on",
+              "humanTest": false
+            },
+            {
+              "id": "AC-2.1.4",
+              "text": "After a service restart, in-flight work items resume from their last recorded state",
+              "humanTest": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "F3",
+      "title": "Governance gates and approvals",
+      "stories": [
+        {
+          "id": "US-3.1",
+          "text": "As an approver, I want to approve or send back a stage’s output, so nothing moves forward without a named person deciding.",
+          "acs": [
+            {
+              "id": "AC-3.1.1",
+              "text": "A gate stops the flow and creates a pending approval for the configured role",
+              "humanTest": false
+            },
+            {
+              "id": "AC-3.1.2",
+              "text": "Approve moves the work item to the next stage; send back returns it to the previous stage with a reason",
+              "humanTest": false
+            },
+            {
+              "id": "AC-3.1.3",
+              "text": "The person who triggered or produced the work can’t approve their own gate",
+              "humanTest": false
+            },
+            {
+              "id": "AC-3.1.4",
+              "text": "An approval that passes its SLA is flagged as overdue and the approver is notified",
+              "humanTest": false
+            },
+            {
+              "id": "AC-3.1.5",
+              "text": "An approver can understand what they’re approving from the gate screen alone, without opening the repo",
+              "humanTest": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "F4",
+      "title": "Escalations",
+      "stories": [
+        {
+          "id": "US-4.1",
+          "text": "As an agent, I want to ask a person a question mid-run, so I don’t have to guess.",
+          "acs": [
+            {
+              "id": "AC-4.1.1",
+              "text": "An agent question creates an escalation visible to the assigned person",
+              "humanTest": false
+            },
+            {
+              "id": "AC-4.1.2",
+              "text": "The answer is passed back to the agent run and recorded",
+              "humanTest": false
+            },
+            {
+              "id": "AC-4.1.3",
+              "text": "Repeated questions that don’t move the work forward are capped and escalated to the lead",
+              "humanTest": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "F5",
+      "title": "Evidence Pack",
+      "stories": [
+        {
+          "id": "US-5.1",
+          "text": "As an auditor, I want an Evidence Pack per work item, so I can see who decided what, when, and on what basis.",
+          "acs": [
+            {
+              "id": "AC-5.1.1",
+              "text": "Every stage start, end, gate decision and escalation is written to an append-only event log",
+              "humanTest": false
+            },
+            {
+              "id": "AC-5.1.2",
+              "text": "The Evidence Pack lists each decision with its actor, timestamp, the artifact it was made against, and that artifact’s hash",
+              "humanTest": false
+            },
+            {
+              "id": "AC-5.1.3",
+              "text": "Altering a recorded event is detectable (integrity chain or anchor check fails)",
+              "humanTest": false
+            },
+            {
+              "id": "AC-5.1.4",
+              "text": "Evidence is stored in write-once storage with locked retention",
+              "humanTest": false
+            },
+            {
+              "id": "AC-5.1.5",
+              "text": "The exported Evidence Pack is readable by a non-engineer auditor",
+              "humanTest": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "F6",
+      "title": "Management dashboard",
+      "stories": [
+        {
+          "id": "US-6.1",
+          "text": "As an approver or lead, I want one dashboard to see work items, pending approvals and evidence.",
+          "acs": [
+            {
+              "id": "AC-6.1.1",
+              "text": "Only signed-in internal accounts can access the dashboard",
+              "humanTest": false
+            },
+            {
+              "id": "AC-6.1.2",
+              "text": "The dashboard lists pending approvals for the signed-in user, oldest first",
+              "humanTest": false
+            },
+            {
+              "id": "AC-6.1.3",
+              "text": "A work item page shows its timeline of stages, decisions and escalations",
+              "humanTest": false
+            },
+            {
+              "id": "AC-6.1.4",
+              "text": "The dashboard is usable on a laptop screen without horizontal scrolling",
+              "humanTest": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "F7",
+      "title": "Deploy and connectors",
+      "stories": [
+        {
+          "id": "US-7.1",
+          "text": "As a delivery lead, I want approved changes merged and deployed to the client’s environment, with the result recorded.",
+          "acs": [
+            {
+              "id": "AC-7.1.1",
+              "text": "After final approval, the PR is merged and the deploy stage runs",
+              "humanTest": false
+            },
+            {
+              "id": "AC-7.1.2",
+              "text": "The deploy result (pass or fail, SHA) is recorded as evidence; a failed deploy opens an escalation",
+              "humanTest": false
+            },
+            {
+              "id": "AC-7.1.3",
+              "text": "The GitHub connector passes the shared connector testkit",
+              "humanTest": false
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

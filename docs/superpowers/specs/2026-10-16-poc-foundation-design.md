@@ -2,6 +2,7 @@
 
 **Date:** 2026-10-16
 **Status:** Approved design, ready for an implementation plan
+**Update 2026-10-16:** the burn-up (§4.3, §6.2) was removed; see 2026-10-16-new-project-wizard-design.md §5.
 **Source:** README §5 (POC scope), §3.2–3.3 (evidence model), `docs/demo/intelligent-flow-scope.md` (Project C)
 
 ## 1. Goal
@@ -42,7 +43,7 @@ src/
     projects/[projectId]/
       layout.tsx                project header + sidebar
       page.tsx                  Overview
-      not-found.tsx
+      (404 handled by src/app/not-found.tsx)
   components/
     ui/                         shadcn components (card, badge, table, chart, progress, separator, tooltip)
     portfolio/                  PortfolioTotals, ProjectsTable
@@ -121,7 +122,7 @@ Returns, for each AC in the **current** scope version, its current `state` and a
 4. If no merged PR touches the AC and at least one open PR does → `in_progress` (from that PR's `openedAt`). Otherwise `not_started`.
 5. ACs that are not in the current scope version are ignored. Closed (unmerged) PRs are ignored.
 
-Each transition is recorded in `history` with the PR's `openedAt`/`mergedAt` or the result's `testedAt`.
+Each transition is recorded in `history` with the PR's `openedAt`/`mergedAt` or the result's `testedAt`. A merged PR also contributes its `openedAt`, so an AC is `in_progress` from the moment the first touching PR was opened. Human results for a 👤 AC only count once the AC has been delivered (a merged PR touches it). Events at the same instant are ordered opened → merged → tested, then by PR number.
 
 **Simplifications compared with README §3.3** (to revisit when the parser and ingestion exist):
 - `in_progress` uses only "open PR". Commits aren't in the mock data.
@@ -183,7 +184,7 @@ View models are plain serialisable objects (ISO strings for dates). `getReposito
 
 ### 6.3 Errors and empty states
 
-- Unknown `projectId` → `notFound()` → project `not-found.tsx` with a link back to the Portfolio.
+- Unknown `projectId` → `notFound()` → the root `src/app/not-found.tsx` with a link back to the Portfolio. (A `notFound()` thrown in a layout is handled by the parent segment, so a not-found file next to the project layout would never be used.)
 - Signals, activity and pending lists each show a short empty‑state message when empty.
 
 ## 7. Demo data
