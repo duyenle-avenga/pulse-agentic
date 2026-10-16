@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { getDecisionStore, useDecisions, useIsClient } from '@/lib/decisions/use-decisions'
 import type { PlannerDraft } from '@/lib/domain/planner'
 import type { IsoDateTime } from '@/lib/domain/types'
@@ -21,26 +21,50 @@ export function Wizard({ draft, now, draftingMs = 900 }: { draft: PlannerDraft; 
   const decisions = useDecisions(projectId)
   const [step, setStep] = useState<Step>('describe')
   const [drafting, setDrafting] = useState(false)
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const container = useRef<HTMLDivElement>(null)
+  const shownStep = useRef<Step | null>(null)
+
+  const data = applyDecisions(draft, decisions)
+  const current: Step = data ? 'locked' : step
+
+  // Don't let a pending "drafting" timer fire after the wizard is gone.
+  useEffect(() => () => clearDraftTimer(timer), [])
+
+  // When the step changes (not on first render), move focus to its heading so keyboard and screen reader users follow along.
+  useEffect(() => {
+    if (!isClient) return
+    const previous = shownStep.current
+    shownStep.current = current
+    if (previous === null || previous === current) return
+    const heading = container.current?.querySelector('h2')
+    if (!heading) return
+    heading.tabIndex = -1
+    heading.focus()
+  }, [isClient, current])
 
   // Decisions live in the browser; render nothing until we can read them, to avoid flashing step 1.
   if (!isClient) return null
 
   const store = getDecisionStore()
-  const data = applyDecisions(draft, decisions)
-  const current: Step = data ? 'locked' : step
   const storyIds = draft.scope.features.flatMap((f) => f.stories.map((s) => s.id))
 
   // Pretend the planner (an LLM later) takes a moment.
   const draftThen = (next: Step) => {
+    clearDraftTimer(timer)
     setDrafting(true)
-    setTimeout(() => {
+    timer.current = setTimeout(() => {
+      timer.current = null
       setDrafting(false)
       setStep(next)
     }, draftingMs)
   }
 
   return (
-    <div className="space-y-6">
+    <div ref={container} className="space-y-6">
+      <p role="status" aria-live="polite" className="sr-only">
+        {drafting ? 'Planner is drafting…' : ''}
+      </p>
       <Stepper current={STEP_INDEX[current]} />
       {current === 'describe' && <DescribeStep brief={draft.brief} drafting={drafting} onSubmit={() => draftThen('questions')} />}
       {current === 'questions' && <QuestionsStep questions={draft.questions} drafting={drafting} onSubmit={() => draftThen('review')} />}
@@ -64,4 +88,9 @@ export function Wizard({ draft, now, draftingMs = 900 }: { draft: PlannerDraft; 
       )}
     </div>
   )
+}
+
+function clearDraftTimer(timer: { current: ReturnType<typeof setTimeout> | null }) {
+  if (timer.current !== null) clearTimeout(timer.current)
+  timer.current = null
 }
