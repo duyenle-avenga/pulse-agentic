@@ -46,4 +46,12 @@ describe('MockRepository.getProjectOverview', () => {
   it('returns null for an unknown project', async () => {
     expect(await repo.getProjectOverview('nope')).toBeNull()
   })
+
+  it('orders signals by severity, then oldest first, and keeps five', async () => {
+    const base = ALL_PROJECTS[0]
+    const sig = (id: string, severity: 'high' | 'medium' | 'low', raisedAt: string) => ({ ...base.signals[0], id, severity, raisedAt })
+    const custom = { ...base, signals: [sig('S1', 'low', '2026-10-10T09:00:00+02:00'), sig('S2', 'medium', '2026-10-12T09:00:00+02:00'), sig('S3', 'medium', '2026-10-11T09:00:00+02:00'), sig('S4', 'high', '2026-10-13T09:00:00+02:00'), sig('S5', 'low', '2026-10-09T09:00:00+02:00'), sig('S6', 'low', '2026-10-08T09:00:00+02:00')] }
+    const o = await createMockRepository([custom], DEMO_NOW).getProjectOverview(base.project.id)
+    expect(o?.topSignals.map((s) => s.id)).toEqual(['S4', 'S3', 'S2', 'S6', 'S5'])
+  })
 })
