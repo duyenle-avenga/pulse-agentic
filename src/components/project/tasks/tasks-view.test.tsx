@@ -31,6 +31,9 @@ describe('TasksView', () => {
     const toggle = screen.getByRole('button', { name: /^T-01 / })
     fireEvent.click(toggle)
     expect(toggle).toHaveAttribute('aria-expanded', 'true')
+    const panelId = toggle.getAttribute('aria-controls')
+    expect(panelId).toBeTruthy()
+    expect(document.getElementById(panelId!)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Copy T-01 as Markdown' })).toBeInTheDocument()
     expect(
       screen.getByText(/AC-1\.1\.4 The sign-in page looks right on a phone {3}👤 human test/, {
@@ -48,6 +51,7 @@ describe('TasksView', () => {
   it('shows the board with one column per status', () => {
     renderProject(<TasksView view="board" />, expenseTracker)
     expect(screen.getAllByRole('heading', { level: 3 }).map((h) => h.textContent)).toEqual(['Not started (2)', 'In progress (1)', 'In review (2)', 'Done (2)'])
+    expect(screen.getByRole('region', { name: 'Done (2)' })).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: /^T-05 / }))
     expect(screen.getByRole('button', { name: 'Copy T-05 as Markdown' })).toBeInTheDocument()
   })

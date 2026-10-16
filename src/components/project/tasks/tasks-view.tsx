@@ -24,6 +24,7 @@ interface TaskRow {
 }
 
 const prLabel = (p: PullRequest) => `#${p.number} · ${CI_LABEL[p.ci]}`
+const ticketPanelId = (taskId: string) => `task-ticket-${taskId}`
 
 export function TasksView({ view }: { view: TasksViewMode }) {
   const { data, acStates } = useProject()
@@ -74,8 +75,15 @@ interface ViewProps {
 }
 
 function TaskToggle({ row, selected, onToggle }: { row: TaskRow; selected: string | null; onToggle: (id: string) => void }) {
+  const expanded = selected === row.task.id
   return (
-    <button type="button" aria-expanded={selected === row.task.id} onClick={() => onToggle(row.task.id)} className="text-left hover:underline">
+    <button
+      type="button"
+      aria-expanded={expanded}
+      aria-controls={expanded ? ticketPanelId(row.task.id) : undefined}
+      onClick={() => onToggle(row.task.id)}
+      className="text-left hover:underline"
+    >
       <span className="font-medium">{row.task.id}</span> {row.task.title}
     </button>
   )
@@ -113,11 +121,13 @@ function TaskList({ rows, data, selected, onToggle }: ViewProps) {
                 )}
               </TableCell>
               <TableCell>{row.task.agent ?? <span className="text-muted-foreground">Unassigned</span>}</TableCell>
-              <TableCell>{row.task.dependsOn.join(', ')}</TableCell>
+              <TableCell>
+                {row.task.dependsOn.length === 0 ? <span className="text-muted-foreground">None</span> : row.task.dependsOn.join(', ')}
+              </TableCell>
             </TableRow>
             {selected === row.task.id && (
               <TableRow>
-                <TableCell colSpan={7} className="whitespace-normal">
+                <TableCell id={ticketPanelId(row.task.id)} colSpan={7} className="whitespace-normal">
                   <TicketPanel row={row} data={data} />
                 </TableCell>
               </TableRow>
@@ -136,9 +146,10 @@ function TaskBoard({ rows, data, selected, onToggle }: ViewProps) {
       <div className="grid gap-4 md:grid-cols-4">
         {TASK_STATUSES.map((status) => {
           const column = rows.filter((r) => r.status === status)
+          const headingId = `column-${status}-heading`
           return (
-            <section key={status} className="space-y-2 rounded-lg bg-muted/40 p-3">
-              <h3 className="text-sm font-medium">{`${TASK_STATUS_LABEL[status]} (${column.length})`}</h3>
+            <section key={status} aria-labelledby={headingId} className="space-y-2 rounded-lg bg-muted/40 p-3">
+              <h3 id={headingId} className="text-sm font-medium">{`${TASK_STATUS_LABEL[status]} (${column.length})`}</h3>
               {column.map((row) => (
                 <Card key={row.task.id} size="sm">
                   <CardContent className="space-y-1 text-sm">
@@ -151,7 +162,11 @@ function TaskBoard({ rows, data, selected, onToggle }: ViewProps) {
           )
         })}
       </div>
-      {open && <TicketPanel row={open} data={data} />}
+      {open && (
+        <div id={ticketPanelId(open.task.id)}>
+          <TicketPanel row={open} data={data} />
+        </div>
+      )}
     </div>
   )
 }
