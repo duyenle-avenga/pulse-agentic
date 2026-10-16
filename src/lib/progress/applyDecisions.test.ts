@@ -49,4 +49,18 @@ describe('applyDecisions', () => {
     expect(t14?.dependsOn).toEqual([])
     expect(data.tasks.map((t) => t.id)).not.toContain('T-07')
   })
+
+  it('moves a kept task to the story of its first remaining AC when its own story is rejected', () => {
+    const data = applyDecisions(draft, decide({ 'US-6.1': 'rejected' }))
+    if (!data) throw new Error('expected data')
+    const t14 = data.tasks.find((t) => t.id === 'T-14')
+    expect(t14?.acIds).toEqual(['AC-3.1.5'])
+    expect(t14?.storyId).toBe('US-3.1')
+  })
+
+  it('does not change the draft', () => {
+    const before = structuredClone(draft)
+    applyDecisions(draft, decide({ 'US-3.1': 'rejected', 'US-6.1': 'rejected' }))
+    expect(draft).toEqual(before)
+  })
 })

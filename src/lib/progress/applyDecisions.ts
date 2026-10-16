@@ -9,11 +9,14 @@ export function applyDecisions(draft: PlannerDraft, decisions: ProjectDecisions)
   const features = draft.scope.features
     .map((f) => ({ ...f, stories: f.stories.filter((s) => decisions.stories[s.id] === 'approved') }))
     .filter((f) => f.stories.length > 0)
-  const v1AcIds = new Set(features.flatMap((f) => f.stories.flatMap((s) => s.acs.map((a) => a.id))))
+  const storyOfAc = new Map(features.flatMap((f) => f.stories.flatMap((s) => s.acs.map((a) => [a.id, s.id] as const))))
+  const v1StoryIds = new Set(storyOfAc.values())
 
   const kept = draft.tasks
-    .map((t) => ({ ...t, acIds: t.acIds.filter((id) => v1AcIds.has(id)) }))
+    .map((t) => ({ ...t, acIds: t.acIds.filter((id) => storyOfAc.has(id)) }))
     .filter((t) => t.acIds.length > 0)
+    // A task whose own story was rejected moves to the story of its first remaining AC.
+    .map((t) => (v1StoryIds.has(t.storyId) ? t : { ...t, storyId: storyOfAc.get(t.acIds[0]) ?? t.storyId }))
   const keptIds = new Set(kept.map((t) => t.id))
 
   return {
