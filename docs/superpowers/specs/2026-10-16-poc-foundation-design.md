@@ -121,7 +121,7 @@ Returns, for each AC in the **current** scope version, its current `state` and a
 4. If no merged PR touches the AC and at least one open PR does → `in_progress` (from that PR's `openedAt`). Otherwise `not_started`.
 5. ACs that are not in the current scope version are ignored. Closed (unmerged) PRs are ignored.
 
-Each transition is recorded in `history` with the PR's `openedAt`/`mergedAt` or the result's `testedAt`.
+Each transition is recorded in `history` with the PR's `openedAt`/`mergedAt` or the result's `testedAt`. A merged PR also contributes its `openedAt`, so an AC is `in_progress` from the moment the first touching PR was opened. Human results for a 👤 AC only count once the AC has been delivered (a merged PR touches it). Events at the same instant are ordered opened → merged → tested, then by PR number.
 
 **Simplifications compared with README §3.3** (to revisit when the parser and ingestion exist):
 - `in_progress` uses only "open PR". Commits aren't in the mock data.
