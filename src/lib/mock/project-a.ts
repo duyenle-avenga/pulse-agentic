@@ -66,7 +66,7 @@ export const expenseTracker: ProjectData = {
     pr(P, { number: 1, title: 'T-01 Sign-up and sign-in', taskIds: ['T-01'], state: 'merged', openedAt: at(10, 7, 9), mergedAt: at(10, 8, 15), ci: 'passing', testPlan: [ticked('AC-1.1.1', 'e2e', 'signup.spec.ts'), ticked('AC-1.1.2', 'unit', 'auth.test.ts'), unticked('AC-1.1.4')] }),
     pr(P, { number: 2, title: 'T-02 Protect signed-in pages', taskIds: ['T-02'], state: 'merged', openedAt: at(10, 8, 16), mergedAt: at(10, 9, 11), ci: 'passing', testPlan: [ticked('AC-1.1.3', 'e2e', 'redirect.spec.ts')] }),
     pr(P, { number: 3, title: 'T-03 Expense list, add, edit and delete', taskIds: ['T-03'], state: 'merged', openedAt: at(10, 9, 10), mergedAt: at(10, 11, 14), ci: 'passing', testPlan: [ticked('AC-2.1.1', 'e2e', 'expenses.spec.ts'), ticked('AC-2.1.3', 'unit', 'expenses.test.ts'), unticked('AC-2.1.4')] }),
-    pr(P, { number: 4, title: 'T-05 Receipt upload', taskIds: ['T-05'], state: 'open', openedAt: at(10, 14, 10), ci: 'pending' }),
+    pr(P, { number: 4, title: 'T-05 Receipt upload', taskIds: ['T-05'], state: 'open', openedAt: at(10, 12, 10), ci: 'pending' }),
     pr(P, { number: 5, title: 'T-06 Monthly report', taskIds: ['T-06'], state: 'open', openedAt: at(10, 13, 15), ci: 'passing', testPlan: [ticked('AC-4.1.1', 'unit', 'report.test.ts'), unticked('AC-4.1.4')], scopeChangeNotes: ['Scope change: add CSV export of expenses, so users can send them to their accountant (needs approval)'] }),
   ],
   humanTests: [
@@ -78,6 +78,6 @@ export const expenseTracker: ProjectData = {
   signals: [
     { id: 'SIG-1', projectId: P, type: 'pending_decision', severity: 'medium', message: 'SCR-1 (CSV export) has been waiting for approval for 2 days', suggestedAction: 'Ping the approver, Maya Patel', raisedAt: at(10, 15, 16), links: { prNumber: 5 } },
     { id: 'SIG-2', projectId: P, type: 'stalled_task', severity: 'medium', message: 'T-05 Receipt upload: no PR activity for over 24 h', suggestedAction: 'Re-prompt the agent, split the task, or check whether it is blocked', raisedAt: at(10, 15, 15), links: { taskId: 'T-05', prNumber: 4 } },
-    { id: 'SIG-3', projectId: P, type: 'pr_format', severity: 'low', message: 'PR #4 has no Test plan section', suggestedAction: 'Ask the agent to update the PR description', raisedAt: at(10, 14, 11), links: { prNumber: 4 } },
+    { id: 'SIG-3', projectId: P, type: 'pr_format', severity: 'low', message: 'PR #4 has no Test plan section', suggestedAction: 'Ask the agent to update the PR description', raisedAt: at(10, 12, 11), links: { prNumber: 4 } },
   ],
 }

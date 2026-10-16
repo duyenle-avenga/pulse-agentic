@@ -75,4 +75,13 @@ describe.each(ALL_PROJECTS.map((d) => [d.project.id, d] as const))('mock integri
     ]
     for (const d of dates) expect(Date.parse(d), d).toBeLessThanOrEqual(Date.parse(DEMO_NOW))
   })
+
+  it('numbers PRs in the order they were opened', () => {
+    const sorted = [...prs].sort((a, b) => a.number - b.number)
+    for (let i = 1; i < sorted.length; i++) {
+      expect(Date.parse(sorted[i].openedAt), `PR #${sorted[i].number} openedAt`).toBeGreaterThanOrEqual(
+        Date.parse(sorted[i - 1].openedAt),
+      )
+    }
+  })
 })

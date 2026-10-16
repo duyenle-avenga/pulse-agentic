@@ -41,5 +41,15 @@ describe('Project B: Customer portal', () => {
 
   it('has red-main, regression and ticked-but-red signals', () => {
     expect(customerPortal.signals.map((s) => s.type).sort()).toEqual(['red_main', 'regression', 'ticked_but_red'])
+    const regression = customerPortal.signals.find((s) => s.type === 'regression')
+    expect(regression?.links.acId).toBe('AC-3.1.2')
+    expect(regression?.links.prNumber).toBe(106)
+  })
+
+  it('locks v1.1 when its scope change is approved', () => {
+    const [, v11] = customerPortal.project.scopeVersions
+    const [scr1] = customerPortal.scrs
+    expect(scr1.decidedAt).toBe(v11.lockedAt)
+    expect(scr1.decidedBy).toBe(v11.approvedBy)
   })
 })
