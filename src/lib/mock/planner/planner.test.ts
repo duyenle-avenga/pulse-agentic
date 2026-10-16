@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { WIZARD_PROJECT_ID } from '@/lib/domain/planner'
 import { acsOf, currentScope } from '@/lib/domain/scope'
 import { intelligentFlow } from '../project-c'
 import { ALL_DRAFTS, intelligentFlowV2 } from './index'
@@ -11,7 +12,7 @@ const unique = (ids: string[]) => new Set(ids).size === ids.length
 describe('planner draft: Intelligent Flow v2', () => {
   it('is the only draft and uses its own project id', () => {
     expect(ALL_DRAFTS).toEqual([draft])
-    expect(draft.brief.projectId).toBe('intelligent-flow-v2')
+    expect(draft.brief.projectId).toBe(WIZARD_PROJECT_ID)
     expect(draft.brief.name).toBe('Intelligent Flow v2')
   })
 
@@ -57,7 +58,7 @@ describe('planner draft: Intelligent Flow v2', () => {
   it('stays clear of the review notes and never says console', () => {
     const text = JSON.stringify(draft)
     for (const term of ['console', 'React', 'MUI', 'Radix', 'prototype', 'bulk', 'unassigned', 'ADR', 'mvp-stack', 'apps/']) {
-      expect(text, term).not.toMatch(new RegExp(term.replace('/', '\/'), 'i'))
+      expect(text, term).not.toMatch(new RegExp(term, 'i'))
     }
   })
 })
