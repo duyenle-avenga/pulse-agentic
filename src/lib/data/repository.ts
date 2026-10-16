@@ -44,9 +44,6 @@ export interface ProjectOverview {
 
 /** The only way the UI reads data. Swap the implementation for a real DB later. */
 export interface PulseRepository {
-  getPortfolio(): Promise<PortfolioRow[]>
-  getProjectHeader(projectId: string): Promise<ProjectHeaderData | null>
-  getProjectOverview(projectId: string): Promise<ProjectOverview | null>
   /** Raw facts for one project; screens merge browser decisions on top. Null for unknown ids and drafts. */
   getProjectData(projectId: string): Promise<ProjectData | null>
   getAllProjectData(): Promise<ProjectData[]>

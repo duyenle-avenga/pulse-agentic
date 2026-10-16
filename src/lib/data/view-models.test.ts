@@ -22,4 +22,18 @@ describe('view models', () => {
     expect(o.topWarnings.map((s) => s.severity)).toEqual(['high', 'high', 'medium'])
     expect(o.activity).toHaveLength(10)
   })
+
+  it('orders warnings by severity, then oldest first, and keeps five', () => {
+    const base = customerPortal
+    const warning = (id: string, severity: 'high' | 'medium' | 'low', raisedAt: string) => ({ ...base.warnings[0], id, severity, raisedAt })
+    const custom = {
+      ...base,
+      warnings: [
+        warning('S1', 'low', '2026-10-10T09:00:00+02:00'), warning('S2', 'medium', '2026-10-12T09:00:00+02:00'),
+        warning('S3', 'medium', '2026-10-11T09:00:00+02:00'), warning('S4', 'high', '2026-10-13T09:00:00+02:00'),
+        warning('S5', 'low', '2026-10-09T09:00:00+02:00'), warning('S6', 'low', '2026-10-08T09:00:00+02:00'),
+      ],
+    }
+    expect(toProjectOverview(custom).topWarnings.map((s) => s.id)).toEqual(['S4', 'S3', 'S2', 'S6', 'S5'])
+  })
 })
