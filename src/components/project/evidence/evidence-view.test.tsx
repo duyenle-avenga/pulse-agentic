@@ -6,10 +6,15 @@ import { customerPortal } from '@/lib/mock/project-b'
 import { renderProject } from '../test-utils'
 import { EvidenceView } from './evidence-view'
 
-// AC cells are named "AC-x.y.z", plus " Needs a human tester" for 👤 ACs.
-const acCells = () => within(screen.getByRole('table')).queryAllByRole('cell', { name: /^AC-/ })
+// AC cells read "AC-x.y.z", plus " 👤" for ACs that need a human tester.
+// Text queries scoped to <td>, not role queries: a role query computes the accessible name and visibility of
+// every cell in this ~150-cell table (15-80ms each in jsdom), which pushed this file past the 5s timeout under load.
+const acCells = () => within(screen.getByRole('table')).queryAllByText(/^AC-/, { selector: 'td' })
 const rowOf = (acId: string) => {
-  const cell = within(screen.getByRole('table')).getByRole('cell', { name: (name) => name === acId || name.startsWith(`${acId} `) })
+  const cell = within(screen.getByRole('table')).getByText(
+    (_, el) => el?.textContent === acId || !!el?.textContent?.startsWith(`${acId} `),
+    { selector: 'td' },
+  )
   const row = cell.closest('tr')
   if (!row) throw new Error(`no row for ${acId}`)
   return within(row)
