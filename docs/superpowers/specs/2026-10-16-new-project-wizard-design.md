@@ -133,6 +133,8 @@ interface DecisionStore {
 - The server page also loads the draft and passes the server rows plus the draft to a client `PortfolioView`.
 - `PortfolioView` reads decisions; when Intelligent Flow v2 is locked it appends its row (built with `applyDecisions` + `toPortfolioRow`) and includes it in the totals strip.
 - The row appears right after hydration (server render shows the 3 server projects).
+- **Totals strip, reordered:** three cards in this order: **Pending approvals**, **Pending user testing**, **Open signals** (with its "N high" detail). The **Projects** card is removed.
+- **Project count:** a small grey line (`text-sm text-muted-foreground`) directly above the projects table, e.g. "3 projects" ("1 project" when singular). It includes Intelligent Flow v2 once locked.
 
 **Project pages (`/projects/[projectId]`).**
 - Layout and page: if the repository has no project for the id but has a planner draft, render client components instead of `notFound()`:
@@ -157,8 +159,9 @@ interface DecisionStore {
 - `LocalStorageDecisionStore`: decide, decideAll only touches undecided stories, lock freezes decisions, reset, subscribe notifies, corrupt JSON and throwing storage behave as empty.
 - Planner JSON integrity: unique ids, every task AC and story exists in the scope, 7/7/28/3👤/17 counts, no "console", none of a list of review-note terms.
 - View-model helpers (moved code keeps its tests).
+- Portfolio totals: the three cards appear in the new order, there is no "Projects" card, and the project count line reads "3 projects" / "1 project".
 - Components: questions step shows prefilled answers; review step enables Lock only after all stories are decided with at least one approved; a rejected story's ACs are absent from step 4's tasks.
 
-**Playwright (one new spec):** Portfolio shows 3 projects → New project → Submit to planner → Submit answers → Approve all → Lock v1 → step 4 lists 17 tasks → Back to portfolio shows 4 projects with Intelligent Flow v2 at Completion 0% · Delivery 0% → open its Overview (KPIs and "Scope v1 locked by Demo approver" in activity) → back to the wizard → Reset demo → Portfolio shows 3 projects. Each test starts with empty localStorage.
+**Playwright (one new spec):** Portfolio shows "3 projects" → New project → Submit to planner → Submit answers → Approve all → Lock v1 → step 4 lists 17 tasks → Back to portfolio shows "4 projects" with Intelligent Flow v2 at Completion 0% · Delivery 0% → open its Overview (KPIs and "Scope v1 locked by Demo approver" in activity) → back to the wizard → Reset demo → Portfolio shows 3 projects. Each test starts with empty localStorage.
 
 **Definition of done:** lint, typecheck, unit tests, build and e2e pass; the wizard, Portfolio and Intelligent Flow v2 Overview checked in the browser in light and dark mode.
