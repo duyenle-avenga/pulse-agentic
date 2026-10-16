@@ -6,7 +6,7 @@ import { WIZARD_PROJECT_ID } from '@/lib/domain/planner'
 
 export default async function PortfolioPage() {
   const repo = getRepository()
-  const [rows, draft] = await Promise.all([repo.getPortfolio(), repo.getPlannerDraft(WIZARD_PROJECT_ID)])
+  const [projects, draft] = await Promise.all([repo.getAllProjectData(), repo.getPlannerDraft(WIZARD_PROJECT_ID)])
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -18,7 +18,7 @@ export default async function PortfolioPage() {
           New project
         </Link>
       </div>
-      <PortfolioView rows={rows} draft={draft} now={getNow()} />
+      <PortfolioView projects={projects} draft={draft} now={getNow()} />
     </div>
   )
 }
