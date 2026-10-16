@@ -1,3 +1,4 @@
+import type { PlannerDraft } from '@/lib/domain/planner'
 import type { BoardKind, IsoDateTime, ProjectKind, Signal } from '@/lib/domain/types'
 import type { ActivityEvent } from '@/lib/progress/activity'
 import type { Rollup } from '@/lib/progress/rollup'
@@ -46,4 +47,6 @@ export interface PulseRepository {
   getPortfolio(): Promise<PortfolioRow[]>
   getProjectHeader(projectId: string): Promise<ProjectHeaderData | null>
   getProjectOverview(projectId: string): Promise<ProjectOverview | null>
+  /** Read-only planner output for a project that is being created (the wizard). */
+  getPlannerDraft(projectId: string): Promise<PlannerDraft | null>
 }

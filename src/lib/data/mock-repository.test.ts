@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { ALL_PROJECTS } from '@/lib/mock'
+import { ALL_DRAFTS } from '@/lib/mock/planner'
 import { createMockRepository } from './mock-repository'
 
-const repo = createMockRepository(ALL_PROJECTS)
+const repo = createMockRepository(ALL_PROJECTS, ALL_DRAFTS)
 const SEVERITY_RANK = { high: 0, medium: 1, low: 2 }
 
 describe('MockRepository.getPortfolio', () => {
@@ -50,5 +51,19 @@ describe('MockRepository.getProjectOverview', () => {
     const custom = { ...base, signals: [sig('S1', 'low', '2026-10-10T09:00:00+02:00'), sig('S2', 'medium', '2026-10-12T09:00:00+02:00'), sig('S3', 'medium', '2026-10-11T09:00:00+02:00'), sig('S4', 'high', '2026-10-13T09:00:00+02:00'), sig('S5', 'low', '2026-10-09T09:00:00+02:00'), sig('S6', 'low', '2026-10-08T09:00:00+02:00')] }
     const o = await createMockRepository([custom]).getProjectOverview(base.project.id)
     expect(o?.topSignals.map((s) => s.id)).toEqual(['S4', 'S3', 'S2', 'S6', 'S5'])
+  })
+})
+
+describe('MockRepository.getPlannerDraft', () => {
+  it('returns the Intelligent Flow v2 draft, or null for any other id', async () => {
+    const draft = await repo.getPlannerDraft('intelligent-flow-v2')
+    expect(draft?.brief.name).toBe('Intelligent Flow v2')
+    expect(await repo.getPlannerDraft('intelligent-flow')).toBeNull()
+    expect(await repo.getPlannerDraft('nope')).toBeNull()
+  })
+
+  it('does not list drafts as projects', async () => {
+    expect((await repo.getPortfolio()).map((r) => r.id)).not.toContain('intelligent-flow-v2')
+    expect(await repo.getProjectHeader('intelligent-flow-v2')).toBeNull()
   })
 })
