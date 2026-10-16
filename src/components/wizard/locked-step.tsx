@@ -24,6 +24,9 @@ export function LockedStep({ data, onReset }: { data: ProjectData; onReset: () =
           <Link href="/" className={buttonVariants({ variant: 'outline' })}>
             Back to portfolio
           </Link>
+          <Button variant="ghost" onClick={onReset}>
+            Reset demo
+          </Button>
         </div>
       </div>
       <section className="space-y-3">
@@ -32,9 +35,6 @@ export function LockedStep({ data, onReset }: { data: ProjectData; onReset: () =
           <TaskTicket key={t.id} task={t} acs={acsFor(t.acIds)} />
         ))}
       </section>
-      <Button variant="link" onClick={onReset}>
-        Reset demo
-      </Button>
     </div>
   )
 }
