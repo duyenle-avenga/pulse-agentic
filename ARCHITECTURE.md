@@ -12,12 +12,14 @@ src/
     page.tsx                    Portfolio
     projects/new/page.tsx       New project wizard
     projects/[projectId]/
-      layout.tsx                project header + sidebar; falls back to the planner draft (`DraftProjectLayout`) when the id isn't a real project
-      page.tsx                  Project overview
+      layout.tsx                loads raw data (or the wizard draft) into ProjectDataProvider
+      page.tsx                  Overview
+      user-testing/ scope/ tasks/ evidence/ approvals/ changelog/ metrics/
+                                one thin page each; the screen is a client view
   components/
     ui/                         shadcn/ui primitives (generated; keep hand edits minimal, e.g. table `scope`)
     portfolio/                  Portfolio screen components
-    project/                    Project screens' components
+    project/                    project screens: provider, shell, sidebar, one folder per tab
     wizard/                     New project wizard steps and task tickets
     labels.ts                   display labels and colours for domain enums (colours are `--ac-*` tokens in globals.css)
     project-badges.tsx          kind and board badges, shared by both screens
@@ -26,7 +28,7 @@ src/
     progress/                   pure derivation: AC states, rollups, activity, applying decisions to a draft
     data/                       repository interface + implementations (the only door to data)
       view-models.ts            pure mappers used by server and client
-    decisions/                  decision store: localStorage now, DB later
+    decisions/                  DecisionStore (localStorage): wizard decisions, human test results, SCR decisions
     mock/                       demo data for projects A, B and C, builders for writing it, and the demo clock
       planner/                  planner drafts as JSON
     wizard/                     wizard helpers (ticket Markdown, lock rule)
@@ -39,25 +41,23 @@ docs/                           design docs, specs and plans
 ## Data flow
 
 ```
-page.tsx (async Server Component)
-  → getRepository()                 src/lib/data/index.ts
-  → MockRepository                  src/lib/data/mock-repository.ts
-      → raw facts                   src/lib/mock/*
-      → deriveAcStates, rollup,     src/lib/progress/*
-        recentActivity
-  → plain view models (props)
-  → components
-
-client path (wizard project): draft prop + decisions (localStorage) → applyDecisions → view-models → components
+layout.tsx / page.tsx (async Server Components)
+  → getRepository()                     src/lib/data/index.ts
+  → getProjectData / getAllProjectData  raw facts from src/lib/mock/*
+  → ProjectDataProvider / PortfolioView (client)
+      → useDecisions / useAllDecisions  src/lib/decisions (localStorage)
+      → applyProjectDecisions           src/lib/progress: human tests, SCR decisions → new scope versions, computed warnings
+      → deriveAcStates, view models     src/lib/progress, src/lib/data/view-models.ts
+  → useProject() in every tab           { data, acStates, now }
 ```
 
 Rules:
-- **No API routes yet.** Pages call the repository directly. Later write flows (user testing, approvals) will use Server Actions over the same repository.
-- **The UI never imports `lib/mock`.** It goes through `lib/data`, so a Postgres implementation can replace the mock without UI changes.
-- **Mocks hold raw facts only** (scope, tasks, parsed PRs, human test results, SCRs, warnings). AC states and all numbers are derived in `lib/progress` (README §3.3).
+- **No API routes.** Server pages load raw facts through the repository. Human decisions (wizard approvals and lock, human test results, SCR decisions) live in the browser's `DecisionStore` and are merged on the client, so every screen shows the same numbers.
+- **The UI never imports `lib/mock`.** It goes through `lib/data`, so a Postgres implementation can replace the mock without UI changes. A DB-backed `DecisionStore` can replace localStorage the same way.
+- **Mocks hold raw facts only** (scope, tasks, parsed PRs, human test results, SCRs with their proposals, warnings). AC states, new scope versions and all numbers are derived in `lib/progress` (README §3.3).
+- **Computed warnings:** `pending_user_testing` and `pending_decision` come from `deriveWarnings`, so they follow decisions. Other warning types are mock records until the rules engine exists.
 - **`lib/progress` is pure:** no I/O, no real clock. "Now" is passed in (`DEMO_NOW` in the POC).
-- **Decisions.** Content (projects, planner drafts) comes from the repository on the server. Human decisions (story approvals, the v1 lock) are only read and written through `DecisionStore` (`lib/decisions`), currently localStorage. Client components combine a draft with the decisions using `applyDecisions` (`lib/progress`) and the shared view-model helpers. Client code imports `@/lib/data/view-models` and `@/lib/data/repository` types, never values from `@/lib/data` (that pulls in the mock data).
-- Server Components by default. Our own client components are the decision-aware ones (`PortfolioView`, `Wizard`, `DraftProjectLayout`, `DraftOverview`, `TaskTicket`); everything else is a Server Component. Some shadcn primitives ship as client components.
+- The server renders mock projects with no decisions; stored decisions apply right after hydration. Intelligent Flow v2 only renders on the client, because it exists only once this browser locks its v1.
 
 ## Tests
 

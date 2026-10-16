@@ -122,6 +122,5 @@ export const intelligentFlow: ProjectData = {
   warnings: [
     { id: 'WRN-1', projectId: P, type: 'unplanned_work', severity: 'medium', message: '145 merged PRs carry no CTOACT key', suggestedAction: 'Link them to a task, or raise an SCR for work outside the scope', raisedAt: at(10, 2, 11), links: {} },
     { id: 'WRN-2', projectId: P, type: 'unchecked_acs_merged', severity: 'medium', message: 'PR #212 was merged without AC-5.1.4 in its test plan', suggestedAction: 'Open a follow-up task, or confirm the AC moves to a later task', raisedAt: at(10, 10, 13), links: { prNumber: 212, acId: 'AC-5.1.4', taskId: 'T-13' } },
-    { id: 'WRN-3', projectId: P, type: 'pending_user_testing', severity: 'low', message: '3 👤 ACs are waiting for a tester, the oldest since 25 Sep', suggestedAction: 'Assign a tester and start with the oldest', raisedAt: at(10, 16, 8), links: {} },
   ],
 }

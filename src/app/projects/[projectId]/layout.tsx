@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation'
-import { DraftProjectLayout } from '@/components/project/draft-project-layout'
-import { ProjectShell } from '@/components/project/project-shell'
-import { getRepository } from '@/lib/data'
+import { ProjectDataProvider } from '@/components/project/project-data-provider'
+import { getNow, getRepository } from '@/lib/data'
 
 export default async function ProjectLayout({
   children,
@@ -12,10 +11,22 @@ export default async function ProjectLayout({
 }) {
   const { projectId } = await params
   const repo = getRepository()
-  const header = await repo.getProjectHeader(projectId)
-  if (header) return <ProjectShell header={header}>{children}</ProjectShell>
+  const now = getNow()
+
+  const data = await repo.getProjectData(projectId)
+  if (data) {
+    return (
+      <ProjectDataProvider source={{ kind: 'project', data }} now={now}>
+        {children}
+      </ProjectDataProvider>
+    )
+  }
 
   const draft = await repo.getPlannerDraft(projectId)
   if (!draft) notFound()
-  return <DraftProjectLayout draft={draft}>{children}</DraftProjectLayout>
+  return (
+    <ProjectDataProvider source={{ kind: 'draft', draft }} now={now}>
+      {children}
+    </ProjectDataProvider>
+  )
 }

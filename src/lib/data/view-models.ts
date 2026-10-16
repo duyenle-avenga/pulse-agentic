@@ -53,7 +53,6 @@ export function toProjectOverview(data: ProjectData): ProjectOverview {
     .sort((a, b) => SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity] || Date.parse(a.raisedAt) - Date.parse(b.raisedAt))
     .slice(0, 5)
   return {
-    header: toProjectHeader(data),
     rollup: rollup(deriveAcStates(data)),
     topWarnings,
     activity: recentActivity(data),

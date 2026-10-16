@@ -20,6 +20,13 @@ export function useDecisions(projectId: string): ProjectDecisions {
   )
 }
 
+const NO_DECISIONS: Readonly<Record<string, ProjectDecisions>> = Object.freeze({})
+
+/** Every project's decisions. The server snapshot is empty, like useDecisions. */
+export function useAllDecisions(): Readonly<Record<string, ProjectDecisions>> {
+  return useSyncExternalStore(store.subscribe, store.getAll, () => NO_DECISIONS)
+}
+
 const noop = () => () => {}
 
 /** False during server render and hydration, true afterwards. Use it to avoid a flash of the wrong state. */

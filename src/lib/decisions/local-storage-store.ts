@@ -1,4 +1,5 @@
-import { EMPTY_DECISIONS, type ProjectDecisions, type StoryDecision } from '@/lib/domain/planner'
+import { EMPTY_DECISIONS, type ProjectDecisions, type ScrDecision, type StoryDecision } from '@/lib/domain/planner'
+import type { HumanTestResult } from '@/lib/domain/types'
 import type { DecisionStore } from './store'
 
 export const DECISIONS_KEY = 'pulse-agentic:decisions:v1'
@@ -16,6 +17,24 @@ function normalizeLock(value: unknown): ProjectDecisions['lock'] {
   return { lockedAt: value.lockedAt, lockedBy: value.lockedBy }
 }
 
+const isString = (v: unknown): v is string => typeof v === 'string'
+
+function normalizeHumanTest(value: unknown): HumanTestResult | null {
+  if (!isRecord(value)) return null
+  const { acId, result, environment, tester, testedAt, notes } = value
+  if (!isString(acId) || (result !== 'pass' && result !== 'fail') || !isString(environment) || !isString(tester) || !isString(testedAt)) {
+    return null
+  }
+  return { acId, result, environment, tester, testedAt, ...(isString(notes) ? { notes } : {}) }
+}
+
+function normalizeScrDecision(value: unknown): ScrDecision | null {
+  if (!isRecord(value)) return null
+  const { status, decidedAt, decidedBy, reason } = value
+  if ((status !== 'approved' && status !== 'rejected') || !isString(decidedAt) || !isString(decidedBy) || !isString(reason)) return null
+  return { status, decidedAt, decidedBy, reason }
+}
+
 /** Keeps only well-formed entries; anything else in storage is ignored. */
 function normalize(value: unknown): AllDecisions {
   if (!isRecord(value)) return {}
@@ -28,7 +47,23 @@ function normalize(value: unknown): AllDecisions {
         if (isDecision(decision)) stories[storyId] = decision
       }
     }
-    out[id] = { stories, lock: normalizeLock(entry.lock) }
+    const humanTests = Array.isArray(entry.humanTests)
+      ? entry.humanTests.map(normalizeHumanTest).filter((t): t is HumanTestResult => t !== null)
+      : []
+    const scrs: Record<string, ScrDecision> = {}
+    if (isRecord(entry.scrs)) {
+      for (const [scrId, decision] of Object.entries(entry.scrs)) {
+        const normalized = normalizeScrDecision(decision)
+        if (normalized) scrs[scrId] = normalized
+      }
+    }
+    out[id] = {
+      stories,
+      lock: normalizeLock(entry.lock),
+      // Only present when used, so wizard-only decisions keep their original shape.
+      ...(humanTests.length > 0 ? { humanTests } : {}),
+      ...(Object.keys(scrs).length > 0 ? { scrs } : {}),
+    }
   }
   return out
 }
@@ -68,6 +103,8 @@ export function createLocalStorageDecisionStore(storage: () => Storage | undefin
   return {
     get: (projectId) => load()[projectId] ?? EMPTY_DECISIONS,
 
+    getAll: () => load(),
+
     decideStory: (projectId, storyId, decision) =>
       update(projectId, (d) => (d.lock || d.stories[storyId] === decision ? d : { ...d, stories: { ...d.stories, [storyId]: decision } })),
 
@@ -79,6 +116,12 @@ export function createLocalStorageDecisionStore(storage: () => Storage | undefin
       }),
 
     lock: (projectId, lockedAt, lockedBy) => update(projectId, (d) => (d.lock ? d : { ...d, lock: { lockedAt, lockedBy } })),
+
+    recordHumanTest: (projectId, result) =>
+      update(projectId, (d) => ({ ...d, humanTests: [...(d.humanTests ?? []), result] })),
+
+    decideScr: (projectId, scrId, decision) =>
+      update(projectId, (d) => (d.scrs?.[scrId] ? d : { ...d, scrs: { ...d.scrs, [scrId]: decision } })),
 
     reset: (projectId) => {
       const current = load()

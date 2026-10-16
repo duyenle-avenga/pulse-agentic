@@ -1,5 +1,5 @@
 import type { PlannerDraft } from '@/lib/domain/planner'
-import type { BoardKind, IsoDateTime, ProjectKind, Warning } from '@/lib/domain/types'
+import type { BoardKind, IsoDateTime, ProjectData, ProjectKind, Warning } from '@/lib/domain/types'
 import type { ActivityEvent } from '@/lib/progress/activity'
 import type { Rollup } from '@/lib/progress/rollup'
 
@@ -36,7 +36,6 @@ export interface ProjectHeaderData {
 }
 
 export interface ProjectOverview {
-  header: ProjectHeaderData
   rollup: Rollup
   topWarnings: Warning[]
   activity: ActivityEvent[]
@@ -44,9 +43,9 @@ export interface ProjectOverview {
 
 /** The only way the UI reads data. Swap the implementation for a real DB later. */
 export interface PulseRepository {
-  getPortfolio(): Promise<PortfolioRow[]>
-  getProjectHeader(projectId: string): Promise<ProjectHeaderData | null>
-  getProjectOverview(projectId: string): Promise<ProjectOverview | null>
+  /** Raw facts for one project; screens merge browser decisions on top. Null for unknown ids and drafts. */
+  getProjectData(projectId: string): Promise<ProjectData | null>
+  getAllProjectData(): Promise<ProjectData[]>
   /** Read-only planner output for a project that is being created (the wizard). */
   getPlannerDraft(projectId: string): Promise<PlannerDraft | null>
 }
