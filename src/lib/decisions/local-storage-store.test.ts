@@ -46,8 +46,10 @@ describe('LocalStorageDecisionStore', () => {
     store.decideStory(P, 'US-1.1', 'rejected')
     store.decideAll(P, ['US-2.1'], 'approved')
     expect(store.get(P)).toEqual({ stories: { 'US-1.1': 'approved' }, lock: { lockedAt: AT, lockedBy: 'Demo approver' } })
+    expect(make().get(P).lock).toEqual({ lockedAt: AT, lockedBy: 'Demo approver' }) // the lock survives a reload
     store.reset(P)
     expect(store.get(P)).toEqual(EMPTY_DECISIONS)
+    expect(make().get(P)).toEqual(EMPTY_DECISIONS)
   })
 
   it('returns the same object until something changes (stable snapshot)', () => {
@@ -88,6 +90,13 @@ describe('LocalStorageDecisionStore', () => {
     expect(store.get(P)).toEqual({ stories: { 'US-1.1': 'approved' }, lock: null })
     expect(store.get('other')).toEqual(EMPTY_DECISIONS)
     expect(store.get('list')).toEqual(EMPTY_DECISIONS)
+  })
+
+  it('ignores a top-level array and project entries that are not objects', () => {
+    storage = fakeStorage({ [DECISIONS_KEY]: JSON.stringify([{ stories: { 'US-1.1': 'approved' }, lock: null }]) })
+    expect(make().get('0')).toEqual(EMPTY_DECISIONS)
+    storage = fakeStorage({ [DECISIONS_KEY]: JSON.stringify({ [P]: 'x' }) })
+    expect(make().get(P)).toEqual(EMPTY_DECISIONS)
   })
 
   it('keeps working in memory when storage throws', () => {
