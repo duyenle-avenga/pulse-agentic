@@ -22,6 +22,12 @@ describe('task', () => {
       id: 'T-1', title: 't', storyId: 'US-1', acIds: ['AC-1'], intent: '', dependsOn: [], projectId: 'p',
     })
   })
+
+  it('keeps explicit intent, dependsOn, agent and externalKey', () => {
+    expect(task('p', { id: 'T-1', title: 't', storyId: 'US-1', acIds: ['AC-1'], intent: 'Build feature X', dependsOn: ['T-2', 'T-3'], agent: 'alice', externalKey: 'key123' })).toEqual({
+      id: 'T-1', title: 't', storyId: 'US-1', acIds: ['AC-1'], intent: 'Build feature X', dependsOn: ['T-2', 'T-3'], agent: 'alice', externalKey: 'key123', projectId: 'p',
+    })
+  })
 })
 
 describe('pr', () => {
@@ -37,5 +43,12 @@ describe('pr', () => {
       testPlan: [unticked('AC-1')], scopeChangeNotes: ['Scope change: z'], sections: { migration: true },
     })
     expect(q.sections).toEqual({ summary: true, migration: true, testPlan: true, notes: true })
+  })
+
+  it('keeps explicit taskIds, headSha and mergedAt', () => {
+    const p = pr('p', { number: 7, title: 'T-1 x', state: 'merged', openedAt: at(10, 1), ci: 'pass', taskIds: ['T-1', 'T-2'], headSha: 'abc1234', mergedAt: at(10, 2, 15, 30) })
+    expect(p.taskIds).toEqual(['T-1', 'T-2'])
+    expect(p.headSha).toBe('abc1234')
+    expect(p.mergedAt).toBe(at(10, 2, 15, 30))
   })
 })
