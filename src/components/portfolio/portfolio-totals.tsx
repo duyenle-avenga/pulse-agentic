@@ -4,13 +4,12 @@ import type { PortfolioRow } from '@/lib/data'
 export function PortfolioTotals({ rows }: { rows: PortfolioRow[] }) {
   const sum = (pick: (r: PortfolioRow) => number) => rows.reduce((n, r) => n + pick(r), 0)
   const items = [
-    { label: 'Projects', value: rows.length },
-    { label: 'Open signals', value: sum((r) => r.openSignals), detail: `${sum((r) => r.highSignals)} high` },
     { label: 'Pending approvals', value: sum((r) => r.pendingApprovals) },
     { label: 'Pending user testing', value: sum((r) => r.pendingUserTesting) },
+    { label: 'Open signals', value: sum((r) => r.openSignals), detail: `${sum((r) => r.highSignals)} high` },
   ]
   return (
-    <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+    <div className="grid gap-4 sm:grid-cols-3">
       {items.map((item) => (
         <Card key={item.label}>
           <CardHeader>

@@ -15,12 +15,14 @@ function getCard(label: string) {
 }
 
 describe('PortfolioTotals', () => {
-  it('sums signals, approvals and pending user tests across projects', () => {
+  it('shows approvals, user testing and signals, in that order, without a projects card', () => {
     render(<PortfolioTotals rows={[base, { ...base, id: 'b', highSignals: 2, pendingApprovals: 0, pendingUserTesting: 3 }]} />)
-    expect(within(getCard('Projects')).getByText('2')).toBeInTheDocument()
-    expect(within(getCard('Open signals')).getByText('6')).toBeInTheDocument()
-    expect(screen.getByText('2 high')).toBeInTheDocument()
+    const labels = [...document.querySelectorAll('[data-slot="card-description"]')].map((el) => el.textContent)
+    expect(labels).toEqual(['Pending approvals', 'Pending user testing', 'Open signals'])
+    expect(screen.queryByText('Projects')).not.toBeInTheDocument()
     expect(within(getCard('Pending approvals')).getByText('1')).toBeInTheDocument()
     expect(within(getCard('Pending user testing')).getByText('3')).toBeInTheDocument()
+    expect(within(getCard('Open signals')).getByText('6')).toBeInTheDocument()
+    expect(screen.getByText('2 high')).toBeInTheDocument()
   })
 })
