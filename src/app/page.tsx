@@ -12,7 +12,7 @@ export default async function PortfolioPage() {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold">Agentic Project Management</h1>
-          <p className="text-sm text-muted-foreground">Monitoring agentic projects, measured by completed user stories and acceptance criteria instead of sprints.</p>
+          <p className="text-sm text-muted-foreground">Monitoring agentic software development, measured quality and progress by completed user stories and acceptance criteria instead of sprints.</p>
         </div>
         <Link href="/projects/new" className={buttonVariants()}>
           New project
