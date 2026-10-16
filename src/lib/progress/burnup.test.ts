@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { Project } from '@/lib/domain/types'
 import { ac, at, feature, story } from '@/lib/mock/builders'
 import type { AcStatus } from './deriveAcStates'
-import { burnup } from './burnup'
+import { burnup, stateAt } from './burnup'
 
 const project: Project = {
   id: 'p',
@@ -47,5 +47,42 @@ describe('burnup', () => {
   it('ignores changes later than now on the last day', () => {
     // AC-3 is verified at 12:00 on 4 Oct, but "now" is 09:00 that day.
     expect(points.at(-1)).toEqual({ date: '2026-10-04', scope: 3, delivered: 2, verified: 1 })
+  })
+})
+
+describe('burnup Berlin day boundary', () => {
+  const boundaryStatuses: AcStatus[] = [
+    { acId: 'AC-1', humanTest: false, state: 'verified', history: [{ state: 'verified', at: at(10, 2, 23, 30) }] },
+    { acId: 'AC-2', humanTest: false, state: 'verified', history: [{ state: 'verified', at: at(10, 3, 0, 30) }] },
+  ]
+  const points = burnup(project, boundaryStatuses, at(10, 3, 23, 0))
+  const byDate = Object.fromEntries(points.map((p) => [p.date, p]))
+
+  it('counts a status verified at 23:30 Berlin time on the earlier day', () => {
+    expect(byDate['2026-10-02'].verified).toBe(1)
+  })
+
+  it('counts a status verified at 00:30 Berlin time on the later day, not the earlier one', () => {
+    expect(byDate['2026-10-03'].verified).toBe(2)
+  })
+})
+
+describe('stateAt', () => {
+  it('returns not_started for empty history', () => {
+    const status: AcStatus = { acId: 'AC-1', humanTest: false, state: 'not_started', history: [] }
+    expect(stateAt(status, Date.parse(at(10, 5, 0, 0)))).toBe('not_started')
+  })
+
+  it('ignores a transition that happens after the cutoff', () => {
+    const status: AcStatus = {
+      acId: 'AC-1',
+      humanTest: false,
+      state: 'verified',
+      history: [
+        { state: 'in_progress', at: at(10, 1, 12) },
+        { state: 'verified', at: at(10, 5, 12) },
+      ],
+    }
+    expect(stateAt(status, Date.parse(at(10, 2, 0, 0)))).toBe('in_progress')
   })
 })

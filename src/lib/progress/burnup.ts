@@ -13,6 +13,8 @@ export interface BurnupPoint {
 
 const DAY_MS = 86_400_000
 // Days end at midnight Europe/Berlin summer time, matching the demo data.
+// The start day (`lockedAt.slice(0, 10)`) and `now.slice(0, 10)` below also assume
+// every timestamp is written in this offset, as the demo builders (`at()`) do.
 const TZ_OFFSET = '+02:00'
 
 export function stateAt(status: AcStatus, cutoffMs: number): AcState {
