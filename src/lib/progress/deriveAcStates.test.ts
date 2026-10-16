@@ -234,6 +234,13 @@ describe('deriveAcStates: an AC whose text changed needs new evidence', () => {
     expect(statusOf('AC-2', [mergedPr(2)], [humanTest('pass', 3)], p).state).toBe('verified')
   })
 
+  it('counts evidence exactly at the change: the demo clock can give an approval and a browser action the same time', () => {
+    const p = changed({ day: 5, text1: 'regular, reworded', text2: 'human, reworded' })
+    expect(statusOf('AC-1', [mergedPr(2, { mergedAt: at(10, 5), testPlan: [ticked('AC-1', 'unit')] })], [], p).state).toBe('verified')
+    const atChange: HumanTestResult = { acId: 'AC-2', result: 'pass', environment: 'staging', tester: 'Tess', testedAt: at(10, 5) }
+    expect(statusOf('AC-2', [mergedPr(2, { mergedAt: at(10, 5) })], [atChange], p).state).toBe('verified')
+  })
+
   it('uses the latest change when the AC changed more than once', () => {
     const p = changed({ day: 5, text1: 'second' }, { day: 7, text1: 'third' })
     expect(statusOf('AC-1', [mergedPr(6, { testPlan: [ticked('AC-1', 'unit')] })], [], p).state).toBe('not_started')

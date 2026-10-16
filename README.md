@@ -191,7 +191,7 @@ Progress is calculated per AC, then rolled up:
 
 A 👤 AC becomes `verified` or `failing` only when a human records the result.
 
-When an approved scope change rewrites an AC's text, the AC needs new proof: PRs merged and human results recorded before that scope version no longer count for it. ACs that didn't change keep their evidence.
+When an approved scope change rewrites an AC's text, the AC needs new proof: PRs merged and human results recorded before that version was approved no longer count for it. ACs that didn't change keep their evidence.
 
 - **Completion %** = verified ACs ÷ total ACs in the current scope version (optionally weighted by priority)
 - **Delivery %** = implemented‑or‑better ACs ÷ total (shows how much work is done but not yet proven)

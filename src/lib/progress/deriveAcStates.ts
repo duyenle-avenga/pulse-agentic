@@ -32,7 +32,7 @@ const prNumberOf = (event: AcEvent): number => (event.kind === 'tested' ? 0 : ev
 
 const NOT_YET_DELIVERED: readonly AcState[] = ['not_started', 'in_progress']
 
-/** Applies README §3.3 to raw evidence, skipping evidence from before an AC's last text change. See the spec §4.1. */
+/** Applies README §3.3 to raw evidence, skipping evidence from before an AC's last text change (README §3.3). See the spec §4.1 for the state rules. */
 export function deriveAcStates({ project, tasks, prs, humanTests }: EvidenceInput): AcStatus[] {
   const acIdsByTask = new Map(tasks.map((t) => [t.id, new Set(t.acIds)]))
   const touches = (pr: PullRequest, acId: string) =>

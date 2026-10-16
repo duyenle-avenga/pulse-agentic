@@ -19,5 +19,5 @@ export function evidenceCutoffs(project: Project): Map<string, IsoDateTime> {
   return cutoffs
 }
 
-/** True when evidence at `at` predates the AC's last text change. */
+/** True when evidence at `at` predates the AC's last text change. Ties count: the demo clock can make browser actions share a timestamp. */
 export const isBeforeCutoff = (cutoff: IsoDateTime | undefined, at: IsoDateTime) => cutoff !== undefined && Date.parse(at) < Date.parse(cutoff)

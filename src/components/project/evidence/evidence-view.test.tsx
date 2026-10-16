@@ -19,6 +19,12 @@ const rowOf = (acId: string) => {
   if (!row) throw new Error(`no row for ${acId}`)
   return within(row)
 }
+/** The "+N earlier" toggle sits in the row right after the AC's row. */
+const earlierToggleOf = (acId: string) => {
+  const toggleRow = rowOf(acId).getByText(acId, { exact: false, selector: 'td' }).closest('tr')?.nextElementSibling
+  if (!toggleRow) throw new Error(`no toggle row for ${acId}`)
+  return within(toggleRow as HTMLElement).getByRole('button', { name: /earlier/ })
+}
 
 describe('EvidenceView', () => {
   beforeEach(() => getDecisionStore().reset(customerPortal.project.id))
@@ -88,11 +94,12 @@ describe('EvidenceView', () => {
     renderProject(<EvidenceView />, customerPortal)
     expect(rowOf('AC-1.1.2').getByText('No evidence since the AC changed')).toBeInTheDocument()
     expect(rowOf('AC-1.1.2').queryByText('PR #101')).not.toBeInTheDocument()
-    const toggle = screen.getAllByRole('button', { name: /earlier/ }).find((b) => b.closest('tr')?.previousElementSibling?.textContent?.startsWith('AC-1.1.2'))
-    if (!toggle) throw new Error('no toggle for AC-1.1.2')
+    const toggle = earlierToggleOf('AC-1.1.2')
     expect(toggle).toHaveTextContent('+1 earlier')
     fireEvent.click(toggle)
-    const revealed = toggle.closest('tr')?.nextElementSibling as HTMLElement | null
+    const ids = toggle.getAttribute('aria-controls')?.split(' ').filter(Boolean) ?? []
+    expect(ids).toHaveLength(1)
+    const revealed = document.getElementById(ids[0])
     if (!revealed) throw new Error('no revealed row')
     expect(within(revealed).getByText('PR #101')).toBeInTheDocument()
     expect(within(revealed).getByText('Before the AC changed')).toBeInTheDocument()
