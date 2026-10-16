@@ -5,7 +5,7 @@ import { PortfolioTotals } from './portfolio-totals'
 
 const base: PortfolioRow = {
   id: 'a', name: 'A', kind: 'greenfield', board: 'none', scopeLabel: 'v1', completionPct: 0, deliveryPct: 0,
-  verified: 0, total: 0, openSignals: 3, highSignals: 0, pendingApprovals: 1, pendingUserTesting: 0, lastActivityAt: null,
+  verified: 0, total: 0, openWarnings: 3, highWarnings: 0, pendingApprovals: 1, pendingUserTesting: 0, lastActivityAt: null,
 }
 
 function getCard(label: string) {
@@ -15,14 +15,14 @@ function getCard(label: string) {
 }
 
 describe('PortfolioTotals', () => {
-  it('shows approvals, user testing and signals, in that order, without a projects card', () => {
-    render(<PortfolioTotals rows={[base, { ...base, id: 'b', highSignals: 2, pendingApprovals: 0, pendingUserTesting: 3 }]} />)
+  it('shows approvals, user testing and warnings, in that order, without a projects card', () => {
+    render(<PortfolioTotals rows={[base, { ...base, id: 'b', highWarnings: 2, pendingApprovals: 0, pendingUserTesting: 3 }]} />)
     const labels = [...document.querySelectorAll('[data-slot="card-description"]')].map((el) => el.textContent)
-    expect(labels).toEqual(['Pending approvals', 'Pending user testing', 'Open signals'])
+    expect(labels).toEqual(['Pending approvals', 'Pending user testing', 'Open warnings'])
     expect(screen.queryByText('Projects')).not.toBeInTheDocument()
     expect(within(getCard('Pending approvals')).getByText('1')).toBeInTheDocument()
     expect(within(getCard('Pending user testing')).getByText('3')).toBeInTheDocument()
-    expect(within(getCard('Open signals')).getByText('6')).toBeInTheDocument()
+    expect(within(getCard('Open warnings')).getByText('6')).toBeInTheDocument()
     expect(screen.getByText('2 high')).toBeInTheDocument()
   })
 })

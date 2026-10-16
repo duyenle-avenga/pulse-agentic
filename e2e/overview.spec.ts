@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-test('overview shows KPIs, state bar, signals and activity', async ({ page }) => {
+test('overview shows KPIs, state bar, warnings and activity', async ({ page }) => {
   await page.goto('/projects/customer-portal')
   await expect(page.getByText('60%', { exact: true })).toBeVisible()
   await expect(page.getByText('70%', { exact: true })).toBeVisible()

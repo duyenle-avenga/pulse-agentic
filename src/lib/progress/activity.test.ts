@@ -18,7 +18,7 @@ const data: ProjectData = {
     { id: 'SCR-1', projectId: 'p', title: 'CSV export', source: 'agent_pr', prNumber: 2, status: 'pending', raisedAt: at(10, 7) },
     { id: 'SCR-2', projectId: 'p', title: 'PDF', source: 'human', status: 'approved', raisedAt: at(10, 4, 12), decidedAt: at(10, 5), decidedBy: 'Maya' },
   ],
-  signals: [],
+  warnings: [],
 }
 
 describe('recentActivity', () => {

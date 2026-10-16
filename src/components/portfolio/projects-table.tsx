@@ -16,7 +16,7 @@ export function ProjectsTable({ rows, now }: { rows: PortfolioRow[]; now: IsoDat
           <TableHead>Scope</TableHead>
           <TableHead className="w-56">Progress</TableHead>
           <TableHead className="text-right">ACs verified</TableHead>
-          <TableHead className="text-right">Signals</TableHead>
+          <TableHead className="text-right">Warnings</TableHead>
           <TableHead className="text-right">Approvals</TableHead>
           <TableHead className="text-right">User testing</TableHead>
           <TableHead>Last activity</TableHead>
@@ -44,9 +44,9 @@ export function ProjectsTable({ rows, now }: { rows: PortfolioRow[]; now: IsoDat
             </TableCell>
             <TableCell className="text-right tabular-nums">{`${r.verified} / ${r.total}`}</TableCell>
             <TableCell className="text-right tabular-nums">
-              {r.openSignals}
-              {r.highSignals > 0 && (
-                <Badge variant="destructive" className="ml-2">{`${r.highSignals} high`}</Badge>
+              {r.openWarnings}
+              {r.highWarnings > 0 && (
+                <Badge variant="destructive" className="ml-2">{`${r.highWarnings} high`}</Badge>
               )}
             </TableCell>
             <TableCell className="text-right tabular-nums">{r.pendingApprovals}</TableCell>

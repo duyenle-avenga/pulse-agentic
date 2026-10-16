@@ -75,9 +75,9 @@ export const expenseTracker: ProjectData = {
   scrs: [
     { id: 'SCR-1', projectId: P, title: 'Add CSV export of expenses', source: 'agent_pr', prNumber: 5, status: 'pending', raisedAt: at(10, 13, 16), rationale: 'Users want to send their expenses to an accountant.' },
   ],
-  signals: [
-    { id: 'SIG-1', projectId: P, type: 'pending_decision', severity: 'medium', message: 'SCR-1 (CSV export) has been waiting for approval for 2 days', suggestedAction: 'Ping the approver, Maya Patel', raisedAt: at(10, 15, 16), links: { prNumber: 5 } },
-    { id: 'SIG-2', projectId: P, type: 'stalled_task', severity: 'medium', message: 'T-05 Receipt upload: no PR activity for over 24 h', suggestedAction: 'Re-prompt the agent, split the task, or check whether it is blocked', raisedAt: at(10, 15, 15), links: { taskId: 'T-05', prNumber: 4 } },
-    { id: 'SIG-3', projectId: P, type: 'pr_format', severity: 'low', message: 'PR #4 has no Test plan section', suggestedAction: 'Ask the agent to update the PR description', raisedAt: at(10, 12, 11), links: { prNumber: 4 } },
+  warnings: [
+    { id: 'WRN-1', projectId: P, type: 'pending_decision', severity: 'medium', message: 'SCR-1 (CSV export) has been waiting for approval for 2 days', suggestedAction: 'Ping the approver, Maya Patel', raisedAt: at(10, 15, 16), links: { prNumber: 5 } },
+    { id: 'WRN-2', projectId: P, type: 'stalled_task', severity: 'medium', message: 'T-05 Receipt upload: no PR activity for over 24 h', suggestedAction: 'Re-prompt the agent, split the task, or check whether it is blocked', raisedAt: at(10, 15, 15), links: { taskId: 'T-05', prNumber: 4 } },
+    { id: 'WRN-3', projectId: P, type: 'pr_format', severity: 'low', message: 'PR #4 has no Test plan section', suggestedAction: 'Ask the agent to update the PR description', raisedAt: at(10, 12, 11), links: { prNumber: 4 } },
   ],
 }

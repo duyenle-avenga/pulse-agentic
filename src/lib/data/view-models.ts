@@ -40,8 +40,8 @@ export function toPortfolioRow(data: ProjectData): PortfolioRow {
     deliveryPct: r.deliveryPct,
     verified: r.counts.verified,
     total: r.total,
-    openSignals: data.signals.length,
-    highSignals: data.signals.filter((s) => s.severity === 'high').length,
+    openWarnings: data.warnings.length,
+    highWarnings: data.warnings.filter((s) => s.severity === 'high').length,
     pendingApprovals: header.pendingApprovals,
     pendingUserTesting: r.pendingUserTesting,
     lastActivityAt: recentActivity(data, 1)[0]?.at ?? null,
@@ -49,13 +49,13 @@ export function toPortfolioRow(data: ProjectData): PortfolioRow {
 }
 
 export function toProjectOverview(data: ProjectData): ProjectOverview {
-  const topSignals = [...data.signals]
+  const topWarnings = [...data.warnings]
     .sort((a, b) => SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity] || Date.parse(a.raisedAt) - Date.parse(b.raisedAt))
     .slice(0, 5)
   return {
     header: toProjectHeader(data),
     rollup: rollup(deriveAcStates(data)),
-    topSignals,
+    topWarnings,
     activity: recentActivity(data),
   }
 }

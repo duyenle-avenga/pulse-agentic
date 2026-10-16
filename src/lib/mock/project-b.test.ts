@@ -30,9 +30,9 @@ describe('Project B: Customer portal', () => {
     expect(r.deliveryPct).toBe(70)
   })
 
-  it('has red-main, regression and ticked-but-red signals', () => {
-    expect(customerPortal.signals.map((s) => s.type).sort()).toEqual(['red_main', 'regression', 'ticked_but_red'])
-    const regression = customerPortal.signals.find((s) => s.type === 'regression')
+  it('has red-main, regression and ticked-but-red warnings', () => {
+    expect(customerPortal.warnings.map((s) => s.type).sort()).toEqual(['red_main', 'regression', 'ticked_but_red'])
+    const regression = customerPortal.warnings.find((s) => s.type === 'regression')
     expect(regression?.links.acId).toBe('AC-3.1.2')
     expect(regression?.links.prNumber).toBe(106)
   })

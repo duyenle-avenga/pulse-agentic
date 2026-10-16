@@ -27,6 +27,6 @@ describe('Intelligent Flow v2 project pages', () => {
     expect(screen.getByRole('link', { name: 'Overview' })).toHaveAttribute('href', '/projects/intelligent-flow-v2')
     expect(screen.getByText('0 of 28 ACs verified')).toBeInTheDocument()
     expect(screen.getByText('Scope v1 locked by Demo approver')).toBeInTheDocument()
-    expect(screen.getByText('No open signals.')).toBeInTheDocument()
+    expect(screen.getByText('No open warnings.')).toBeInTheDocument()
   })
 })

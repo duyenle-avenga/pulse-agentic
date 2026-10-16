@@ -7,7 +7,7 @@ const NOW = '2026-10-16T09:00:00+02:00'
 const row: PortfolioRow = {
   id: 'intelligent-flow', name: 'Intelligent Flow', kind: 'brownfield', board: 'jira', boardKey: 'CTOACT',
   scopeLabel: 'v1', completionPct: 14, deliveryPct: 71, verified: 4, total: 28,
-  openSignals: 3, highSignals: 1, pendingApprovals: 0, pendingUserTesting: 3,
+  openWarnings: 3, highWarnings: 1, pendingApprovals: 0, pendingUserTesting: 3,
   lastActivityAt: '2026-10-16T06:00:00+02:00',
 }
 

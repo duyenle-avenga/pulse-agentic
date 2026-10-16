@@ -6,7 +6,7 @@ export function PortfolioTotals({ rows }: { rows: PortfolioRow[] }) {
   const items = [
     { label: 'Pending approvals', value: sum((r) => r.pendingApprovals) },
     { label: 'Pending user testing', value: sum((r) => r.pendingUserTesting) },
-    { label: 'Open signals', value: sum((r) => r.openSignals), detail: `${sum((r) => r.highSignals)} high` },
+    { label: 'Open warnings', value: sum((r) => r.openWarnings), detail: `${sum((r) => r.highWarnings)} high` },
   ]
   return (
     <div className="grid gap-4 sm:grid-cols-3">

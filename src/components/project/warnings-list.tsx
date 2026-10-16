@@ -1,27 +1,27 @@
 import { SEVERITY_VARIANT } from '@/components/labels'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import type { IsoDateTime, Signal } from '@/lib/domain/types'
+import type { IsoDateTime, Warning } from '@/lib/domain/types'
 import { formatRelative } from '@/lib/format'
 
-function linkText({ taskId, prNumber, acId }: Signal['links']): string {
+function linkText({ taskId, prNumber, acId }: Warning['links']): string {
   return [taskId, prNumber !== undefined ? `PR #${prNumber}` : undefined, acId].filter(Boolean).join(' · ')
 }
 
-export function SignalsList({ signals, now }: { signals: Signal[]; now: IsoDateTime }) {
+export function WarningsList({ warnings, now }: { warnings: Warning[]; now: IsoDateTime }) {
   return (
     <Card>
       <CardHeader>
         <CardTitle>
-          <h2 className="font-heading m-0 text-base font-medium leading-snug">Top signals</h2>
+          <h2 className="font-heading m-0 text-base font-medium leading-snug">Top warnings</h2>
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {signals.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No open signals.</p>
+        {warnings.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No open warnings.</p>
         ) : (
           <ul className="space-y-4">
-            {signals.map((s) => {
+            {warnings.map((s) => {
               const links = linkText(s.links)
               return (
                 <li key={s.id} className="space-y-1">

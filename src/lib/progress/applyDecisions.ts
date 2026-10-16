@@ -35,6 +35,6 @@ export function applyDecisions(draft: PlannerDraft, decisions: ProjectDecisions)
     prs: [],
     humanTests: [],
     scrs: [],
-    signals: [],
+    warnings: [],
   }
 }

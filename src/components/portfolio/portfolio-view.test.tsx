@@ -8,7 +8,7 @@ import { PortfolioView } from './portfolio-view'
 const NOW = '2026-10-16T09:00:00+02:00'
 const row: PortfolioRow = {
   id: 'a', name: 'Project A', kind: 'greenfield', board: 'none', scopeLabel: 'v1', completionPct: 10, deliveryPct: 20,
-  verified: 1, total: 10, openSignals: 0, highSignals: 0, pendingApprovals: 0, pendingUserTesting: 0, lastActivityAt: null,
+  verified: 1, total: 10, openWarnings: 0, highWarnings: 0, pendingApprovals: 0, pendingUserTesting: 0, lastActivityAt: null,
 }
 const store = getDecisionStore()
 const P = draft.brief.projectId

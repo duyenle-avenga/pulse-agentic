@@ -32,7 +32,7 @@ describe('Project A: Expense tracker', () => {
     expect(pending[0].source).toBe('agent_pr')
   })
 
-  it('has the planned signals', () => {
-    expect(expenseTracker.signals.map((s) => s.type).sort()).toEqual(['pending_decision', 'pr_format', 'stalled_task'])
+  it('has the planned warnings', () => {
+    expect(expenseTracker.warnings.map((s) => s.type).sort()).toEqual(['pending_decision', 'pr_format', 'stalled_task'])
   })
 })

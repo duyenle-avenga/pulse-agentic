@@ -116,7 +116,7 @@ export interface ScopeChangeRequest {
   rationale?: string
 }
 
-export type SignalType =
+export type WarningType =
   | 'stalled_task'
   | 'unchecked_acs_merged'
   | 'ticked_but_red'
@@ -131,10 +131,10 @@ export type SignalType =
 
 export type Severity = 'high' | 'medium' | 'low'
 
-export interface Signal {
+export interface Warning {
   id: string
   projectId: string
-  type: SignalType
+  type: WarningType
   severity: Severity
   message: string
   suggestedAction: string
@@ -169,5 +169,5 @@ export interface ProjectData {
   prs: PullRequest[]
   humanTests: HumanTestResult[]
   scrs: ScopeChangeRequest[]
-  signals: Signal[]
+  warnings: Warning[]
 }

@@ -1,5 +1,5 @@
 import type { PlannerDraft } from '@/lib/domain/planner'
-import type { BoardKind, IsoDateTime, ProjectKind, Signal } from '@/lib/domain/types'
+import type { BoardKind, IsoDateTime, ProjectKind, Warning } from '@/lib/domain/types'
 import type { ActivityEvent } from '@/lib/progress/activity'
 import type { Rollup } from '@/lib/progress/rollup'
 
@@ -14,8 +14,8 @@ export interface PortfolioRow {
   deliveryPct: number
   verified: number
   total: number
-  openSignals: number
-  highSignals: number
+  openWarnings: number
+  highWarnings: number
   pendingApprovals: number
   pendingUserTesting: number
   lastActivityAt: IsoDateTime | null
@@ -38,7 +38,7 @@ export interface ProjectHeaderData {
 export interface ProjectOverview {
   header: ProjectHeaderData
   rollup: Rollup
-  topSignals: Signal[]
+  topWarnings: Warning[]
   activity: ActivityEvent[]
 }
 

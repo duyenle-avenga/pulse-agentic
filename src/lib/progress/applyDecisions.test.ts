@@ -27,7 +27,7 @@ describe('applyDecisions', () => {
     expect(acsOf(currentScope(data.project))).toHaveLength(28)
     expect(data.tasks).toHaveLength(17)
     expect(data.tasks.every((t) => t.projectId === 'intelligent-flow-v2')).toBe(true)
-    expect([data.prs, data.humanTests, data.scrs, data.signals]).toEqual([[], [], [], []])
+    expect([data.prs, data.humanTests, data.scrs, data.warnings]).toEqual([[], [], [], []])
     expect(deriveAcStates(data).every((s) => s.state === 'not_started')).toBe(true)
   })
 

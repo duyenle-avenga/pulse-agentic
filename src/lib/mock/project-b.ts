@@ -100,9 +100,9 @@ export const customerPortal: ProjectData = {
   scrs: [
     { id: 'SCR-1', projectId: P, title: 'Download invoices as PDF', source: 'agent_pr', prNumber: 104, status: 'approved', raisedAt: at(9, 30, 12), decidedAt: at(10, 6, 14), decidedBy: 'Lena Fischer', rationale: 'The most requested feature in support tickets.' },
   ],
-  signals: [
-    { id: 'SIG-1', projectId: P, type: 'red_main', severity: 'high', message: 'CI has been red on main for 19 h, since PR #106 was merged', suggestedAction: 'Assign a fix task first and stop merging other PRs', raisedAt: at(10, 15, 15), links: { prNumber: 106 } },
-    { id: 'SIG-2', projectId: P, type: 'regression', severity: 'high', message: 'AC-3.1.2 was verified, and PR #106 now reports it failing', suggestedAction: 'Open a fix task linked to PR #106', raisedAt: at(10, 15, 15), links: { prNumber: 106, acId: 'AC-3.1.2', taskId: 'T-03' } },
-    { id: 'SIG-3', projectId: P, type: 'ticked_but_red', severity: 'medium', message: 'PR #108 ticks AC-5.1.1, but its CI is failing', suggestedAction: 'Don’t count it as verified; ask the agent to re-run and fix', raisedAt: at(10, 15, 10), links: { prNumber: 108, acId: 'AC-5.1.1', taskId: 'T-07' } },
+  warnings: [
+    { id: 'WRN-1', projectId: P, type: 'red_main', severity: 'high', message: 'CI has been red on main for 19 h, since PR #106 was merged', suggestedAction: 'Assign a fix task first and stop merging other PRs', raisedAt: at(10, 15, 15), links: { prNumber: 106 } },
+    { id: 'WRN-2', projectId: P, type: 'regression', severity: 'high', message: 'AC-3.1.2 was verified, and PR #106 now reports it failing', suggestedAction: 'Open a fix task linked to PR #106', raisedAt: at(10, 15, 15), links: { prNumber: 106, acId: 'AC-3.1.2', taskId: 'T-03' } },
+    { id: 'WRN-3', projectId: P, type: 'ticked_but_red', severity: 'medium', message: 'PR #108 ticks AC-5.1.1, but its CI is failing', suggestedAction: 'Don’t count it as verified; ask the agent to re-run and fix', raisedAt: at(10, 15, 10), links: { prNumber: 108, acId: 'AC-5.1.1', taskId: 'T-07' } },
   ],
 }

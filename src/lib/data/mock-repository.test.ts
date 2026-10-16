@@ -14,7 +14,7 @@ describe('MockRepository.getPortfolio', () => {
     const portal = rows[1]
     expect(portal).toMatchObject({
       scopeLabel: 'v1.1', completionPct: 60, deliveryPct: 70, verified: 12, total: 20,
-      openSignals: 3, highSignals: 2, pendingApprovals: 0, pendingUserTesting: 0,
+      openWarnings: 3, highWarnings: 2, pendingApprovals: 0, pendingUserTesting: 0,
       lastActivityAt: '2026-10-15T14:00:00+02:00',
     })
     expect(rows[0].pendingApprovals).toBe(1)
@@ -31,13 +31,13 @@ describe('MockRepository.getProjectHeader', () => {
 })
 
 describe('MockRepository.getProjectOverview', () => {
-  it('returns rollup, top signals and activity', async () => {
+  it('returns rollup, top warnings and activity', async () => {
     const o = await repo.getProjectOverview('customer-portal')
     if (!o) throw new Error('expected an overview')
     expect(o.rollup.total).toBe(20)
     expect(o.activity).toHaveLength(10)
-    expect(o.topSignals.length).toBeLessThanOrEqual(5)
-    const ranks = o.topSignals.map((s) => SEVERITY_RANK[s.severity])
+    expect(o.topWarnings.length).toBeLessThanOrEqual(5)
+    const ranks = o.topWarnings.map((s) => SEVERITY_RANK[s.severity])
     expect(ranks).toEqual([...ranks].sort((a, b) => a - b))
   })
 
@@ -45,12 +45,12 @@ describe('MockRepository.getProjectOverview', () => {
     expect(await repo.getProjectOverview('nope')).toBeNull()
   })
 
-  it('orders signals by severity, then oldest first, and keeps five', async () => {
+  it('orders warnings by severity, then oldest first, and keeps five', async () => {
     const base = ALL_PROJECTS[0]
-    const sig = (id: string, severity: 'high' | 'medium' | 'low', raisedAt: string) => ({ ...base.signals[0], id, severity, raisedAt })
-    const custom = { ...base, signals: [sig('S1', 'low', '2026-10-10T09:00:00+02:00'), sig('S2', 'medium', '2026-10-12T09:00:00+02:00'), sig('S3', 'medium', '2026-10-11T09:00:00+02:00'), sig('S4', 'high', '2026-10-13T09:00:00+02:00'), sig('S5', 'low', '2026-10-09T09:00:00+02:00'), sig('S6', 'low', '2026-10-08T09:00:00+02:00')] }
+    const warning = (id: string, severity: 'high' | 'medium' | 'low', raisedAt: string) => ({ ...base.warnings[0], id, severity, raisedAt })
+    const custom = { ...base, warnings: [warning('S1', 'low', '2026-10-10T09:00:00+02:00'), warning('S2', 'medium', '2026-10-12T09:00:00+02:00'), warning('S3', 'medium', '2026-10-11T09:00:00+02:00'), warning('S4', 'high', '2026-10-13T09:00:00+02:00'), warning('S5', 'low', '2026-10-09T09:00:00+02:00'), warning('S6', 'low', '2026-10-08T09:00:00+02:00')] }
     const o = await createMockRepository([custom]).getProjectOverview(base.project.id)
-    expect(o?.topSignals.map((s) => s.id)).toEqual(['S4', 'S3', 'S2', 'S6', 'S5'])
+    expect(o?.topWarnings.map((s) => s.id)).toEqual(['S4', 'S3', 'S2', 'S6', 'S5'])
   })
 })
 
