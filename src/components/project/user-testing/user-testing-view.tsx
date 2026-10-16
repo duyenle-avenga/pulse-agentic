@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -17,8 +17,33 @@ export function UserTestingView() {
   const results = [...data.humanTests].sort((a, b) => Date.parse(b.testedAt) - Date.parse(a.testedAt))
   const lastEnvironment = results[0]?.environment ?? ''
 
+  const container = useRef<HTMLDivElement>(null)
+  const resultsHeading = useRef<HTMLHeadingElement>(null)
+  const previouslyOpen = useRef<string | null>(null)
+  const pendingFocus = useRef<'cancel' | 'saved' | null>(null)
+
+  // When the inline form closes, follow it with focus: back to its trigger after Cancel (the AC is still in the
+  // queue), or to the results heading after a save (the AC just left the queue, so its trigger button is gone).
+  useLayoutEffect(() => {
+    const previous = previouslyOpen.current
+    previouslyOpen.current = open
+    const action = pendingFocus.current
+    pendingFocus.current = null
+    if (open !== null || previous === null || !action) return
+    if (action === 'saved') {
+      resultsHeading.current?.focus()
+    } else {
+      container.current?.querySelector<HTMLButtonElement>(`[aria-label="Record result for ${previous}"]`)?.focus()
+    }
+  }, [open])
+
+  function closeForm(action: 'cancel' | 'saved') {
+    pendingFocus.current = action
+    setOpen(null)
+  }
+
   return (
-    <div className="space-y-6">
+    <div ref={container} className="space-y-6">
       <ScreenHeading title="User testing" description="👤 ACs whose code is merged and that wait for a human result." />
 
       <section aria-labelledby="queue-heading" className="space-y-3">
@@ -42,7 +67,14 @@ export function UserTestingView() {
                         {[`Story ${item.storyId}`, delivered, `waiting ${formatDuration(item.waitingSince, now)}`].filter(Boolean).join(' · ')}
                       </p>
                       {open === item.ac.id ? (
-                        <RecordResultForm projectId={data.project.id} acId={item.ac.id} now={now} defaultEnvironment={lastEnvironment} onDone={() => setOpen(null)} />
+                        <RecordResultForm
+                          projectId={data.project.id}
+                          acId={item.ac.id}
+                          now={now}
+                          defaultEnvironment={lastEnvironment}
+                          onCancel={() => closeForm('cancel')}
+                          onSaved={() => closeForm('saved')}
+                        />
                       ) : (
                         <Button size="sm" variant="outline" aria-label={`Record result for ${item.ac.id}`} onClick={() => setOpen(item.ac.id)}>
                           Record result
@@ -58,7 +90,7 @@ export function UserTestingView() {
       </section>
 
       <section aria-labelledby="results-heading" className="space-y-3">
-        <h3 id="results-heading" className="font-medium">Recorded results</h3>
+        <h3 id="results-heading" ref={resultsHeading} tabIndex={-1} className="font-medium">Recorded results</h3>
         {results.length === 0 ? (
           <p className="text-sm text-muted-foreground">No results recorded yet.</p>
         ) : (
