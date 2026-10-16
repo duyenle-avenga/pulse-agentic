@@ -46,7 +46,7 @@ describe('pr', () => {
   })
 
   it('keeps explicit taskIds, headSha and mergedAt', () => {
-    const p = pr('p', { number: 7, title: 'T-1 x', state: 'merged', openedAt: at(10, 1), ci: 'pass', taskIds: ['T-1', 'T-2'], headSha: 'abc1234', mergedAt: at(10, 2, 15, 30) })
+    const p = pr('p', { number: 7, title: 'T-1 x', state: 'merged', openedAt: at(10, 1), ci: 'passing', taskIds: ['T-1', 'T-2'], headSha: 'abc1234', mergedAt: at(10, 2, 15, 30) })
     expect(p.taskIds).toEqual(['T-1', 'T-2'])
     expect(p.headSha).toBe('abc1234')
     expect(p.mergedAt).toBe(at(10, 2, 15, 30))
