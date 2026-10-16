@@ -82,4 +82,22 @@ describe('EvidenceView', () => {
     expect(acCells().length).toBeGreaterThan(0)
     for (const cell of acCells()) expect(cell.closest('tr')?.textContent).toContain('No evidence yet')
   })
+
+  it('keeps evidence from before an AC changed under “earlier”, marked as such', () => {
+    getDecisionStore().decideScr(customerPortal.project.id, 'SCR-2', { status: 'approved', decidedAt: '2026-10-16T09:00:00+02:00', decidedBy: 'Lena Fischer', reason: 'Yes' })
+    renderProject(<EvidenceView />, customerPortal)
+    expect(rowOf('AC-1.1.2').getByText('No evidence since the AC changed')).toBeInTheDocument()
+    expect(rowOf('AC-1.1.2').queryByText('PR #101')).not.toBeInTheDocument()
+    const toggle = screen.getAllByRole('button', { name: /earlier/ }).find((b) => b.closest('tr')?.previousElementSibling?.textContent?.startsWith('AC-1.1.2'))
+    if (!toggle) throw new Error('no toggle for AC-1.1.2')
+    expect(toggle).toHaveTextContent('+1 earlier')
+    fireEvent.click(toggle)
+    const revealed = toggle.closest('tr')?.nextElementSibling as HTMLElement | null
+    if (!revealed) throw new Error('no revealed row')
+    expect(within(revealed).getByText('PR #101')).toBeInTheDocument()
+    expect(within(revealed).getByText('Before the AC changed')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'No evidence' }))
+    expect(acCells().map((c) => c.textContent)).toContain('AC-1.1.2')
+  })
 })

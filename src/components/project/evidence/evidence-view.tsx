@@ -25,6 +25,7 @@ const FILTERS: { id: Filter; label: string }[] = [
 
 const earlierRowId = (acId: string, i: number) => `${acId}-earlier-${i}`
 
+/** `items` are the ones that still count, i.e. not from before the AC changed. */
 function matches(filter: Filter, state: AcState, items: EvidenceItem[]): boolean {
   switch (filter) {
     case 'all':
@@ -47,7 +48,10 @@ export function EvidenceView() {
   const evidence = evidenceByAc(data)
   const stateById = new Map(acStates.map((s) => [s.acId, s.state]))
   const rows = acsOf(currentScope(data.project))
-    .map((ac) => ({ ac, state: stateById.get(ac.id) ?? 'not_started', items: evidence.get(ac.id) ?? [] }))
+    .map((ac) => {
+      const all = evidence.get(ac.id) ?? []
+      return { ac, state: stateById.get(ac.id) ?? 'not_started', items: all.filter((i) => !i.beforeChange), stale: all.filter((i) => i.beforeChange) }
+    })
     .filter((r) => matches(filter, r.state, r.items))
 
   const toggle = (acId: string) =>
@@ -89,8 +93,10 @@ export function EvidenceView() {
               </TableCell>
             </TableRow>
           ) : (
-            rows.map(({ ac, state, items }) => {
-              const [latest, ...earlier] = items
+            rows.map(({ ac, state, items, stale }) => {
+              // Evidence from before the AC changed never shows as the latest; it sits at the end of “earlier”.
+              const [latest, ...rest] = items
+              const earlier = [...rest, ...stale]
               const open = expanded.has(ac.id)
               const panelIds = earlier.map((_, i) => earlierRowId(ac.id, i)).join(' ')
               return (
@@ -112,7 +118,7 @@ export function EvidenceView() {
                       <EvidenceCells item={latest} />
                     ) : (
                       <TableCell colSpan={6} className="text-muted-foreground">
-                        No evidence yet
+                        {stale.length > 0 ? 'No evidence since the AC changed' : 'No evidence yet'}
                       </TableCell>
                     )}
                   </TableRow>
@@ -151,10 +157,14 @@ export function EvidenceView() {
 }
 
 function EvidenceCells({ item }: { item: EvidenceItem }) {
+  const beforeChange = item.beforeChange && <span className="block text-xs">Before the AC changed</span>
   if (item.kind === 'human') {
     return (
       <>
-        <TableCell>Human test</TableCell>
+        <TableCell>
+          Human test
+          {beforeChange}
+        </TableCell>
         <TableCell>{item.result === 'pass' ? 'Pass' : 'Fail'}</TableCell>
         <TableCell>{`${item.tester} · ${item.environment}`}</TableCell>
         <TableCell>—</TableCell>
@@ -165,7 +175,10 @@ function EvidenceCells({ item }: { item: EvidenceItem }) {
   }
   return (
     <>
-      <TableCell>{`PR #${item.prNumber}`}</TableCell>
+      <TableCell>
+        {`PR #${item.prNumber}`}
+        {beforeChange}
+      </TableCell>
       <TableCell>{MARK_LABEL[item.mark]}</TableCell>
       <TableCell>{[item.testType, item.testFile].filter(Boolean).join(' · ') || '—'}</TableCell>
       <TableCell>{CI_LABEL[item.ci]}</TableCell>

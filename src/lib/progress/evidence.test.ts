@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
+import { EMPTY_DECISIONS } from '@/lib/domain/planner'
+import { DEMO_NOW } from '@/lib/mock/clock'
 import { customerPortal } from '@/lib/mock/project-b'
 import { intelligentFlow } from '@/lib/mock/project-c'
+import { applyProjectDecisions } from './applyProjectDecisions'
 import { evidenceByAc } from './evidence'
 
 const byAc = evidenceByAc(customerPortal)
@@ -21,5 +24,17 @@ describe('evidenceByAc', () => {
   it('ignores open PRs and PRs without a test plan', () => {
     expect(byAc.get('AC-3.1.5')).toBeUndefined()
     expect(evidenceByAc(intelligentFlow).get('AC-3.1.5')).toBeUndefined()
+  })
+
+  it('marks evidence from before an AC’s text changed', () => {
+    expect([...byAc.values()].flat().some((e) => e.beforeChange)).toBe(false)
+    const approved = applyProjectDecisions(
+      customerPortal,
+      { ...EMPTY_DECISIONS, scrs: { 'SCR-2': { status: 'approved', decidedAt: DEMO_NOW, decidedBy: 'Lena Fischer', reason: 'ok' } } },
+      DEMO_NOW,
+    )
+    const after = evidenceByAc(approved)
+    expect(after.get('AC-1.1.2')).toEqual([expect.objectContaining({ prNumber: 101, beforeChange: true })])
+    expect(after.get('AC-1.1.1')?.[0].beforeChange).toBeUndefined()
   })
 })

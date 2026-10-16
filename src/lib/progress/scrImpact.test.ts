@@ -11,11 +11,11 @@ describe('scrImpact', () => {
     expect(impact?.tasks.map((t) => t.id)).toEqual(['T-08'])
   })
 
-  it('shows B’s session warning as one changed and one added AC', () => {
+  it('shows B’s session warning as one changed and one added AC; the changed AC loses its old proof', () => {
     const scr2 = customerPortal.scrs.find((s) => s.id === 'SCR-2')
     if (!scr2) throw new Error('expected SCR-2')
     const impact = scrImpact(customerPortal, scr2)
-    expect(impact).toMatchObject({ features: ['Sign-in'], completionBefore: 57, completionAfter: 55 })
+    expect(impact).toMatchObject({ features: ['Sign-in'], completionBefore: 57, completionAfter: 50 })
     expect(impact?.diff).toEqual([
       { kind: 'changed', level: 'ac', id: 'AC-1.1.2', text: 'Sessions expire after 30 minutes of inactivity, with a warning 2 minutes before', before: 'Sessions expire after 30 minutes of inactivity' },
       { kind: 'added', level: 'ac', id: 'AC-1.1.4', text: 'Any activity during the warning keeps the session alive' },

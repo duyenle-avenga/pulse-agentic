@@ -8,6 +8,7 @@ import { customerPortal } from '@/lib/mock/project-b'
 import { applyProjectDecisions } from './applyProjectDecisions'
 import { deriveAcStates } from './deriveAcStates'
 import { rollup } from './rollup'
+import { acProgress, taskStatus } from './taskStatus'
 
 const approve = (decidedAt = DEMO_NOW): ScrDecision => ({ status: 'approved', decidedAt, decidedBy: 'Maya Patel', reason: 'Accountants need it' })
 const labels = (data: ProjectData) => data.project.scopeVersions.map((v) => v.label)
@@ -81,5 +82,18 @@ describe('applyProjectDecisions', () => {
     expect(data.scrs.find((s) => s.id === 'SCR-1')?.status).toBe('approved')
     expect(data.scrs.find((s) => s.id === 'SCR-3')?.status).toBe('rejected')
     expect(labels(data)).toEqual(['v1', 'v1.1'])
+  })
+
+  it('approving B’s SCR-2 changes AC-1.1.2, so PR #101’s tick no longer proves it', () => {
+    const data = applyProjectDecisions(customerPortal, { ...EMPTY_DECISIONS, scrs: { 'SCR-2': approve() } }, DEMO_NOW)
+    expect(labels(data)).toEqual(['v1', 'v1.1', 'v1.2'])
+    expect(stateOf(data, 'AC-1.1.2')).toBe('not_started')
+    expect(stateOf(data, 'AC-1.1.1')).toBe('verified')
+
+    const stateById = new Map(deriveAcStates(data).map((s) => [s.acId, s.state]))
+    const t08 = data.tasks.find((t) => t.id === 'T-08')
+    if (!t08) throw new Error('expected T-08')
+    expect(taskStatus(t08, data.prs, stateById)).toBe('not_started')
+    expect(acProgress(t08, stateById)).toEqual({ verified: 0, total: 2 })
   })
 })

@@ -47,7 +47,7 @@ layout.tsx / page.tsx (async Server Components)
   → ProjectDataProvider / PortfolioView (client)
       → useDecisions / useAllDecisions  src/lib/decisions (localStorage)
       → applyProjectDecisions           src/lib/progress: human tests, SCR decisions → new scope versions, computed warnings
-      → deriveAcStates, view models     src/lib/progress, src/lib/data/view-models.ts
+      → deriveAcStates, view models     src/lib/progress (evidence from before an AC's last text change is skipped), src/lib/data/view-models.ts
   → useProject() in every tab           { data, acStates, now }
 ```
 

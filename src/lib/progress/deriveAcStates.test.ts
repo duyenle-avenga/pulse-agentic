@@ -198,3 +198,51 @@ describe('deriveAcStates: scope versions', () => {
     expect(deriveAcStates({ project: versioned, tasks, prs: [], humanTests: [] }).map((s) => s.acId)).toEqual(['AC-1'])
   })
 })
+
+describe('deriveAcStates: an AC whose text changed needs new evidence', () => {
+  const acs = (text1: string, text2 = 'human') => [feature('F1', 'F', [story('US-1', 'S', [ac('AC-1', text1), ac('AC-2', text2, true)])])]
+  const changed = (...changes: { day: number; text1: string; text2?: string }[]): Project => ({
+    ...project,
+    scopeVersions: [
+      ...project.scopeVersions,
+      ...changes.map((c, i) => ({ label: `v1.${i + 1}`, lockedAt: at(10, c.day), approvedBy: 'PO', features: acs(c.text1, c.text2) })),
+    ],
+  })
+
+  it('drops back to not_started when all its evidence predates the change', () => {
+    const s = statusOf('AC-1', [mergedPr(2, { testPlan: [ticked('AC-1', 'unit')] })], [], changed({ day: 5, text1: 'regular, reworded' }))
+    expect(s).toEqual({ acId: 'AC-1', humanTest: false, state: 'not_started', history: [] })
+  })
+
+  it('takes its state from evidence after the change', () => {
+    const prs = [mergedPr(2, { testPlan: [ticked('AC-1', 'unit')] }), mergedPr(6, { testPlan: [unticked('AC-1')] })]
+    const s = statusOf('AC-1', prs, [], changed({ day: 5, text1: 'regular, reworded' }))
+    expect(s.state).toBe('implemented')
+    expect(s.history).toEqual([
+      { state: 'in_progress', at: at(10, 6) },
+      { state: 'implemented', at: at(10, 6, 17) },
+    ])
+  })
+
+  it('keeps a PR opened before the change and merged after it', () => {
+    const late = mergedPr(2, { mergedAt: at(10, 6, 17), testPlan: [ticked('AC-1', 'unit')] })
+    expect(statusOf('AC-1', [late], [], changed({ day: 5, text1: 'regular, reworded' })).state).toBe('verified')
+  })
+
+  it('keeps the evidence of an AC whose text did not change', () => {
+    const p = changed({ day: 5, text1: 'regular, reworded' })
+    expect(statusOf('AC-2', [mergedPr(2)], [humanTest('pass', 3)], p).state).toBe('verified')
+  })
+
+  it('uses the latest change when the AC changed more than once', () => {
+    const p = changed({ day: 5, text1: 'second' }, { day: 7, text1: 'third' })
+    expect(statusOf('AC-1', [mergedPr(6, { testPlan: [ticked('AC-1', 'unit')] })], [], p).state).toBe('not_started')
+  })
+
+  it('ignores human results from before the change and counts those after it', () => {
+    const p = changed({ day: 5, text1: 'regular', text2: 'human, reworded' })
+    expect(statusOf('AC-2', [mergedPr(2)], [humanTest('pass', 3)], p).state).toBe('not_started')
+    expect(statusOf('AC-2', [mergedPr(2), mergedPr(6)], [humanTest('pass', 3)], p).state).toBe('pending_user_testing')
+    expect(statusOf('AC-2', [mergedPr(6)], [humanTest('pass', 7)], p).state).toBe('verified')
+  })
+})
