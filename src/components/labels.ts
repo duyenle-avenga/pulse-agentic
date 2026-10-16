@@ -14,14 +14,14 @@ export const AC_STATE_LABEL: Record<AcState, string> = {
   not_started: 'Not started',
 }
 
-/** Tailwind background classes; the burn-up chart uses the same hues. */
+/** Tailwind background classes backed by the --ac-* tokens in globals.css (light and dark); the burn-up chart uses the same tokens. */
 export const AC_STATE_COLOR: Record<AcState, string> = {
-  verified: 'bg-emerald-600',
-  pending_user_testing: 'bg-violet-500',
-  implemented: 'bg-sky-500',
-  in_progress: 'bg-amber-400',
-  failing: 'bg-red-500',
-  regressed: 'bg-rose-800',
+  verified: 'bg-(--ac-verified)',
+  pending_user_testing: 'bg-(--ac-pending-user-testing)',
+  implemented: 'bg-(--ac-implemented)',
+  in_progress: 'bg-(--ac-in-progress)',
+  failing: 'bg-(--ac-failing)',
+  regressed: 'bg-(--ac-regressed)',
   not_started: 'bg-muted-foreground/25',
 }
 
