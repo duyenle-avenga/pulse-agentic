@@ -13,6 +13,7 @@ export function ProjectSidebar({ projectId }: { projectId: string }) {
         <span key={screen} className="flex items-center justify-between rounded-md px-3 py-2 text-muted-foreground">
           {screen}
           <span className="text-xs">soon</span>
+          <span className="sr-only"> (not available yet)</span>
         </span>
       ))}
     </nav>
