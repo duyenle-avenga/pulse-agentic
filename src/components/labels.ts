@@ -14,7 +14,7 @@ export const AC_STATE_LABEL: Record<AcState, string> = {
   not_started: 'Not started',
 }
 
-/** Tailwind background classes backed by the --ac-* tokens in globals.css (light and dark); the burn-up chart uses the same tokens. */
+/** Tailwind background classes backed by the --ac-* tokens in globals.css (light and dark). */
 export const AC_STATE_COLOR: Record<AcState, string> = {
   verified: 'bg-(--ac-verified)',
   pending_user_testing: 'bg-(--ac-pending-user-testing)',

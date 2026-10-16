@@ -82,8 +82,7 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
   color-scheme: light;
-  /* AC state colours (dataviz reference palette, validated for adjacent pairs on the card surface).
-     The burn-up chart reuses --ac-verified and --ac-implemented. */
+  /* AC state colours (dataviz reference palette, validated for adjacent pairs on the card surface). */
   --ac-verified: #008300;
   --ac-pending-user-testing: #e87ba4;
   --ac-implemented: #2a78d6;

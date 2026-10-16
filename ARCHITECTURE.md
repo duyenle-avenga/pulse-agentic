@@ -21,7 +21,7 @@ src/
     project-badges.tsx          kind and board badges, shared by both screens
   lib/
     domain/                     domain types and small helpers (no I/O)
-    progress/                   pure derivation: AC states, rollups, burn-up, activity
+    progress/                   pure derivation: AC states, rollups, activity
     data/                       repository interface + implementations (the only door to data)
     mock/                       demo data for projects A, B and C, builders for writing it, and the demo clock
     format.ts                   date and duration formatting
@@ -38,7 +38,7 @@ page.tsx (async Server Component)
   → MockRepository                  src/lib/data/mock-repository.ts
       → raw facts                   src/lib/mock/*
       → deriveAcStates, rollup,     src/lib/progress/*
-        burnup, recentActivity
+        recentActivity
   → plain view models (props)
   → components
 ```

@@ -1,11 +1,10 @@
 import { expect, test } from '@playwright/test'
 
-test('overview shows KPIs, burn-up, signals and activity', async ({ page }) => {
+test('overview shows KPIs, state bar, signals and activity', async ({ page }) => {
   await page.goto('/projects/customer-portal')
   await expect(page.getByText('60%', { exact: true })).toBeVisible()
   await expect(page.getByText('70%', { exact: true })).toBeVisible()
   await expect(page.getByText('Acceptance criteria by state')).toBeVisible()
-  await expect(page.locator('svg.recharts-surface').first()).toBeVisible()
   await expect(page.getByText('CI has been red on main for 19 h, since PR #106 was merged')).toBeVisible()
   await expect(page.getByText('PR #106 merged: T-03 Faster invoice filtering')).toBeVisible()
 })

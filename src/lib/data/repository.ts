@@ -1,6 +1,5 @@
 import type { BoardKind, IsoDateTime, ProjectKind, Signal } from '@/lib/domain/types'
 import type { ActivityEvent } from '@/lib/progress/activity'
-import type { BurnupPoint } from '@/lib/progress/burnup'
 import type { Rollup } from '@/lib/progress/rollup'
 
 export interface PortfolioRow {
@@ -38,7 +37,6 @@ export interface ProjectHeaderData {
 export interface ProjectOverview {
   header: ProjectHeaderData
   rollup: Rollup
-  burnup: BurnupPoint[]
   topSignals: Signal[]
   activity: ActivityEvent[]
 }

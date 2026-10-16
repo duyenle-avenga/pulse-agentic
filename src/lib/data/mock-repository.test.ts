@@ -31,12 +31,10 @@ describe('MockRepository.getProjectHeader', () => {
 })
 
 describe('MockRepository.getProjectOverview', () => {
-  it('returns rollup, burn-up, top signals and activity', async () => {
+  it('returns rollup, top signals and activity', async () => {
     const o = await repo.getProjectOverview('customer-portal')
     if (!o) throw new Error('expected an overview')
     expect(o.rollup.total).toBe(20)
-    expect(o.burnup[0].date).toBe('2026-09-22')
-    expect(o.burnup.at(-1)?.date).toBe('2026-10-16')
     expect(o.activity).toHaveLength(10)
     expect(o.topSignals.length).toBeLessThanOrEqual(5)
     const ranks = o.topSignals.map((s) => SEVERITY_RANK[s.severity])

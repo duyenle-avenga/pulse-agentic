@@ -1,9 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { acsOf } from '@/lib/domain/scope'
-import { burnup } from '@/lib/progress/burnup'
 import { deriveAcStates } from '@/lib/progress/deriveAcStates'
 import { rollup } from '@/lib/progress/rollup'
-import { DEMO_NOW } from './clock'
 import { customerPortal } from './project-b'
 
 const statuses = deriveAcStates(customerPortal)
@@ -30,13 +28,6 @@ describe('Project B: Customer portal', () => {
   it('is 60% complete and 70% delivered', () => {
     expect(r.completionPct).toBe(60)
     expect(r.deliveryPct).toBe(70)
-  })
-
-  it('shows a scope step on the day v1.1 was locked, and scope never shrinks', () => {
-    const points = burnup(customerPortal.project, statuses, DEMO_NOW)
-    expect(points.find((p) => p.date === '2026-10-05')?.scope).toBe(18)
-    expect(points.find((p) => p.date === '2026-10-06')?.scope).toBe(20)
-    for (let i = 1; i < points.length; i++) expect(points[i].scope).toBeGreaterThanOrEqual(points[i - 1].scope)
   })
 
   it('has red-main, regression and ticked-but-red signals', () => {

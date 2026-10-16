@@ -1,7 +1,6 @@
 import { currentScope } from '@/lib/domain/scope'
 import type { IsoDateTime, ProjectData, Severity } from '@/lib/domain/types'
 import { recentActivity } from '@/lib/progress/activity'
-import { burnup } from '@/lib/progress/burnup'
 import { deriveAcStates } from '@/lib/progress/deriveAcStates'
 import { rollup } from '@/lib/progress/rollup'
 import type { ProjectHeaderData, PulseRepository } from './repository'
@@ -68,7 +67,6 @@ export function createMockRepository(projects: ProjectData[], now: IsoDateTime):
       return {
         header: headerOf(data),
         rollup: rollup(statuses),
-        burnup: burnup(data.project, statuses, now),
         topSignals,
         activity: recentActivity(data),
       }
