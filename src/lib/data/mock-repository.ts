@@ -21,6 +21,14 @@ export function createMockRepository(projects: ProjectData[], drafts: PlannerDra
       return data ? toProjectOverview(data) : null
     },
 
+    async getProjectData(projectId) {
+      return find(projectId) ?? null
+    },
+
+    async getAllProjectData() {
+      return projects
+    },
+
     async getPlannerDraft(projectId) {
       return drafts.find((d) => d.brief.projectId === projectId) ?? null
     },

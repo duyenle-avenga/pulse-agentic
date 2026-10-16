@@ -67,3 +67,15 @@ describe('MockRepository.getPlannerDraft', () => {
     expect(await repo.getProjectHeader('intelligent-flow-v2')).toBeNull()
   })
 })
+
+describe('MockRepository.getProjectData', () => {
+  it('returns a project’s raw data, or null for drafts and unknown ids', async () => {
+    expect((await repo.getProjectData('customer-portal'))?.project.name).toBe('Customer portal')
+    expect(await repo.getProjectData('intelligent-flow-v2')).toBeNull()
+    expect(await repo.getProjectData('nope')).toBeNull()
+  })
+
+  it('lists every project', async () => {
+    expect((await repo.getAllProjectData()).map((d) => d.project.id)).toEqual(['expense-tracker', 'customer-portal', 'intelligent-flow'])
+  })
+})
