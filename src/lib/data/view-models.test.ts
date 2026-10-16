@@ -21,6 +21,7 @@ describe('view models', () => {
     expect(o.rollup.total).toBe(21)
     expect(o.topWarnings.map((s) => s.severity)).toEqual(['high', 'high', 'medium'])
     expect(o.activity).toHaveLength(10)
+    expect(o).not.toHaveProperty('header')
   })
 
   it('orders warnings by severity, then oldest first, and keeps five', () => {

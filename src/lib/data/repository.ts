@@ -36,7 +36,6 @@ export interface ProjectHeaderData {
 }
 
 export interface ProjectOverview {
-  header: ProjectHeaderData
   rollup: Rollup
   topWarnings: Warning[]
   activity: ActivityEvent[]
