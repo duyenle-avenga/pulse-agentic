@@ -61,6 +61,7 @@ export function RecordResultForm({ projectId, acId, now, defaultEnvironment, onC
   return (
     <form aria-label={`Record result for ${acId}`} noValidate onSubmit={handleSubmit} className="space-y-3 rounded-lg border p-3">
       <fieldset
+        role="radiogroup"
         className="space-y-1"
         aria-invalid={invalid.result || undefined}
         aria-describedby={invalid.result ? errorsId : undefined}

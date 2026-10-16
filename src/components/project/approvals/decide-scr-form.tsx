@@ -41,7 +41,7 @@ export function DecideScrForm({ projectId, scrId, defaultApprover, now }: Props)
   }
 
   return (
-    // Approve and Reject are equal, explicit choices (README §3.5): no submit button, so Enter
+    // Approve and Reject are equal, explicit choices (the spec §3.5): no submit button, so Enter
     // in a field can't silently approve. The form groups the fields for layout and labelling only.
     <form aria-label={`Decide ${scrId}`} noValidate onSubmit={(e) => e.preventDefault()} className="space-y-3 border-t pt-3">
       <div className="grid gap-3 sm:grid-cols-[14rem_1fr]">

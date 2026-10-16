@@ -29,7 +29,7 @@ describe('UserTestingView', () => {
     expect(store.get(C).humanTests).toBeUndefined()
 
     const form = within(screen.getByRole('form', { name: 'Record result for AC-3.1.5' }))
-    const resultGroup = form.getByRole('group', { name: 'Result' })
+    const resultGroup = form.getByRole('radiogroup', { name: 'Result' })
     expect(resultGroup).toHaveAttribute('aria-invalid', 'true')
     expect(resultGroup).toHaveAttribute('aria-describedby', alert.id)
     expect(form.getByLabelText('Environment')).toHaveAttribute('aria-invalid', 'true')
