@@ -17,6 +17,9 @@ export function DraftProjectLayout({ draft, children }: { draft: PlannerDraft; c
   if (!data) {
     return (
       <div className="space-y-2 py-16 text-center">
+        <Link href="/" className="text-sm text-muted-foreground hover:underline">
+          ← Portfolio
+        </Link>
         <h1 className="text-xl font-semibold">{draft.brief.name}</h1>
         <p className="text-muted-foreground">{`${draft.brief.name}’s scope isn’t locked yet.`}</p>
         <Link href="/projects/new" className="underline">

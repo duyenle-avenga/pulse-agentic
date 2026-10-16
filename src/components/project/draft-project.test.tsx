@@ -16,6 +16,7 @@ describe('Intelligent Flow v2 project pages', () => {
     render(<DraftProjectLayout draft={draft}><DraftOverview draft={draft} now={NOW} /></DraftProjectLayout>)
     expect(screen.getByText('Intelligent Flow v2’s scope isn’t locked yet.')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Open the wizard' })).toHaveAttribute('href', '/projects/new')
+    expect(screen.getByRole('link', { name: '← Portfolio' })).toHaveAttribute('href', '/')
   })
 
   it('shows the header, sidebar and overview once v1 is locked', () => {

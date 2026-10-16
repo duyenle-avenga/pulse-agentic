@@ -32,6 +32,7 @@ describe('Wizard', () => {
 
   it('opens on the locked step when v1 is already locked', () => {
     store.decideAll(draft.brief.projectId, ['US-1.1'], 'approved')
+    store.decideAll(draft.brief.projectId, draft.scope.features.flatMap((f) => f.stories.map((s) => s.id)), 'rejected')
     store.lock(draft.brief.projectId, NOW, 'Demo approver')
     render(<Wizard draft={draft} now={NOW} draftingMs={0} />)
     expect(screen.getByRole('heading', { name: 'Generated tasks (2)' })).toBeInTheDocument()

@@ -91,4 +91,15 @@ describe('LockedStep', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Reset demo' }))
     expect(onReset).toHaveBeenCalledOnce()
   })
+
+  it('announces the copy in the button name', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined)
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true })
+    const data = applyDecisions(draft, { ...all('approved'), lock: { lockedAt: '2026-10-16T09:00:00+02:00', lockedBy: 'Demo approver' } })
+    if (!data) throw new Error('expected data')
+    render(<LockedStep data={data} onReset={vi.fn()} />)
+    fireEvent.click(screen.getByRole('button', { name: 'Copy T-08 as Markdown' }))
+    expect(await screen.findByRole('button', { name: 'Copied T-08' })).toHaveTextContent('Copied')
+    expect(writeText).toHaveBeenCalledOnce()
+  })
 })

@@ -44,7 +44,9 @@ describe('planner draft: Intelligent Flow v2', () => {
     expect(unique(draft.tasks.map((t) => t.id))).toBe(true)
     const acIds = acs.map((a) => a.id)
     const taskIds = draft.tasks.map((t) => t.id)
+    const storyIds = stories.map((s) => s.id)
     for (const t of draft.tasks) {
+      expect(storyIds, `${t.id} → ${t.storyId}`).toContain(t.storyId)
       for (const id of t.acIds) expect(acIds, `${t.id} → ${id}`).toContain(id)
       for (const id of t.dependsOn) expect(taskIds, `${t.id} depends on ${id}`).toContain(id)
     }

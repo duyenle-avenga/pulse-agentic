@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { ProjectDecisions, StoryDecision } from '@/lib/domain/planner'
 import type { Feature, UserStory } from '@/lib/domain/types'
+import { lockHint as getLockHint } from '@/lib/wizard/lock-rule'
 
 interface ReviewStepProps {
   features: Feature[]
@@ -15,8 +16,7 @@ interface ReviewStepProps {
 export function ReviewStep({ features, decisions, onDecide, onApproveAll, onLock }: ReviewStepProps) {
   const stories = features.flatMap((f) => f.stories)
   const decided = stories.filter((s) => decisions.stories[s.id]).length
-  const approved = stories.filter((s) => decisions.stories[s.id] === 'approved').length
-  const lockHint = decided < stories.length ? 'Decide every story to lock v1.' : approved === 0 ? 'Approve at least one story to lock v1.' : null
+  const lockHint = getLockHint(stories.map((s) => s.id), decisions)
 
   return (
     <div className="space-y-6">

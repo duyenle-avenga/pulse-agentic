@@ -5,6 +5,7 @@ import { getDecisionStore, useDecisions, useIsClient } from '@/lib/decisions/use
 import type { PlannerDraft } from '@/lib/domain/planner'
 import type { IsoDateTime } from '@/lib/domain/types'
 import { applyDecisions } from '@/lib/progress/applyDecisions'
+import { lockHint } from '@/lib/wizard/lock-rule'
 import { DescribeStep } from './describe-step'
 import { LockedStep } from './locked-step'
 import { QuestionsStep } from './questions-step'
@@ -74,7 +75,9 @@ export function Wizard({ draft, now, draftingMs = 900 }: { draft: PlannerDraft; 
           decisions={decisions}
           onDecide={(storyId, decision) => store.decideStory(projectId, storyId, decision)}
           onApproveAll={() => store.decideAll(projectId, storyIds, 'approved')}
-          onLock={() => store.lock(projectId, now, draft.brief.approver)}
+          onLock={() => {
+            if (lockHint(storyIds, decisions) === null) store.lock(projectId, now, draft.brief.approver)
+          }}
         />
       )}
       {current === 'locked' && data && (

@@ -8,6 +8,7 @@ export interface DecisionStore {
   decideStory(projectId: string, storyId: string, decision: StoryDecision): void
   /** Applies the decision only to stories that are still undecided. */
   decideAll(projectId: string, storyIds: string[], decision: StoryDecision): void
+  /** Doesn't check the decisions; the caller enforces the lock rule (see lockHint). */
   lock(projectId: string, lockedAt: IsoDateTime, lockedBy: string): void
   reset(projectId: string): void
   subscribe(listener: () => void): () => void
