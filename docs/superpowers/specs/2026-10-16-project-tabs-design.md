@@ -22,7 +22,7 @@ Out of scope for this round: editing scope outside an SCR, raising new SCRs from
 
 New pages under `/projects/[projectId]/`: `user-testing`, `scope`, `tasks` (`?view=board` for the board), `evidence`, `approvals`, `changelog`, `metrics`.
 
-`ProjectSidebar` becomes a client component. All eight entries (Overview plus the seven) are links; the current one gets `aria-current="page"` from `usePathname`. The "soon" label is removed. A **Reset demo decisions** link at the bottom of the sidebar clears that project's decisions (`DecisionStore.reset`).
+`ProjectSidebar` becomes a client component. All eight entries (Overview plus the seven) are links; the current one gets `aria-current="page"` from `usePathname`. The "soon" label is removed. A **Reset demo decisions** button at the bottom of the sidebar clears that project's decisions (`DecisionStore.reset`). It is hidden for Intelligent Flow v2, whose decisions are reset from the wizard.
 
 ### 2.2 Loading and the project provider
 
@@ -43,7 +43,7 @@ The view-model helpers in `src/lib/data/view-models.ts` (`toProjectHeader`, `toP
 **Provider.**
 - Reads `useDecisions(projectId)`.
 - For Intelligent Flow v2 it first runs `applyDecisions(draft, decisions)`. If v1 isn't locked it shows the existing "scope isn't locked yet" message with a link to the wizard.
-- Then runs `applyProjectDecisions(data, decisions)` and `deriveAcStates`.
+- Then runs `applyProjectDecisions(data, decisions, now)` and `deriveAcStates`.
 - Exposes `{ data, acStates, now }` through context (`useProject()`). The header (`ProjectShell`) and every tab read it.
 - The server snapshot of decisions is empty, so mock projects render fully on the server and stored decisions apply right after hydration. Only Intelligent Flow v2 waits for the client (`useIsClient`), as today.
 
@@ -53,7 +53,7 @@ The view-model helpers in `src/lib/data/view-models.ts` (`toProjectHeader`, `toP
 
 ### 2.3 Decisions
 
-Same store, same key (`pulse-agentic:decisions:v1`), two new fields:
+Same store, same key (`pulse-agentic:decisions:v1`), two new optional fields (absent until used, so wizard-only decisions keep their shape):
 
 ```ts
 interface ScrDecision {
@@ -66,23 +66,24 @@ interface ScrDecision {
 interface ProjectDecisions {
   stories: Record<string, StoryDecision>          // wizard, unchanged
   lock: { lockedAt: IsoDateTime; lockedBy: string } | null  // wizard, unchanged
-  humanTests: HumanTestResult[]                    // recorded in the demo, oldest first
-  scrs: Record<string, ScrDecision>                // keyed by SCR id
+  humanTests?: HumanTestResult[]                   // recorded in the demo, oldest first
+  scrs?: Record<string, ScrDecision>               // keyed by SCR id
 }
 ```
 
 `DecisionStore` gains:
+- `getAll()`, every project's decisions (a stable snapshot, used by the Portfolio).
 - `recordHumanTest(projectId, result: HumanTestResult): void`, which appends.
 - `decideScr(projectId, scrId, decision: ScrDecision): void`. It is ignored if that SCR already has a decision.
 
 Rules:
-- Saved decisions without the new fields load with `humanTests: []` and `scrs: {}`. Malformed entries are dropped by `normalize`, as today.
+- Saved decisions without the new fields load unchanged; readers treat a missing field as empty. Malformed entries are dropped by `normalize`, as today.
 - Decision times are the demo clock (`DEMO_NOW`).
 - `reset` clears all four fields for the project.
 
 ### 2.4 Applying decisions
 
-`applyProjectDecisions(data, decisions): ProjectData` (`src/lib/progress/applyProjectDecisions.ts`, pure):
+`applyProjectDecisions(data, decisions, now): ProjectData` (`src/lib/progress/applyProjectDecisions.ts`, pure):
 
 1. Appends `decisions.humanTests` to `data.humanTests`.
 2. For each SCR with a decision, sets `status`, `decidedAt`, `decidedBy` and `decisionReason`. SCRs that are already decided in the mocks ignore stored decisions.
@@ -103,6 +104,7 @@ Mock SCRs that are already approved (B's SCR-1) don't apply their proposal again
 interface ScopeProposal {
   /** featureTitle is set only when the story goes into a new feature with id featureId. */
   addStories: { featureId: string; featureTitle?: string; story: UserStory }[]
+  addAcs: { storyId: string; ac: AcceptanceCriterion }[]
   changeAcs: { acId: string; text: string }[]
   removeAcIds: string[]
   tasks: PlannedTask[]
@@ -135,13 +137,13 @@ interface ScopeVersion {
 
 Two warning types are now computed by a pure `deriveWarnings(data, acStates, now)` instead of being mock records:
 - **`pending_user_testing`:** one warning when at least one 👤 AC is pending, with the count and the date the oldest started waiting (same wording as today's mock: "3 👤 ACs are waiting for a tester, the oldest since 25 Sep").
-- **`pending_decision`:** one warning per pending SCR raised more than 24 h before `now` ("SCR-1 (CSV export) has been waiting for approval for 2 days"; suggested action names the current scope's approver).
+- **`pending_decision`:** one warning per pending SCR raised more than 24 h before `now` ("SCR-1 (Add CSV export of expenses) has been waiting for approval for 2 days"; suggested action names the current scope's approver).
 
 Mock records of these two types are removed. The other types stay as mock records.
 
 ## 3. Screens
 
-Shared: state badges use the colours in `labels.ts`; 👤 uses the wizard's marker. New shadcn primitives: `input`, `textarea`, `label`, `radio-group`, `select`.
+Shared: state badges use the colours in `labels.ts`; 👤 uses the wizard's marker. New shadcn primitives: `input`, `textarea`, `label`. Selects and radios are native elements (simpler to test, no popover needed).
 
 ### 3.1 User testing
 
@@ -178,7 +180,7 @@ Task status (`taskStatus(task, prs, acStates)`, pure), first match wins:
 
 ### 3.4 Evidence
 
-- One row per AC in the current scope, sorted by AC id, showing its latest evidence:
+- One row per AC in the current scope, in scope order, showing its latest evidence:
   - **PR:** PR #, ticked / unticked / failed, test type, test file, CI, short SHA, merged at.
   - **Human test:** pass or fail, environment, tester, date.
   - **None:** "No evidence yet".
@@ -190,7 +192,7 @@ Task status (`taskStatus(task, prs, acStates)`, pure), first match wins:
 
 - Pending SCRs first (oldest first), then decided ones (newest first).
 - Each card shows the id, title, source ("Agent · PR #5", "Pulse", "Human"), raised date and age, and the rationale.
-- **Impact analysis** (from the proposal, pure `scrImpact(data, scr)`): features and stories touched, ACs added / changed / removed (`ScopeDiff`), new tasks, and completion before → after ("62% → 51%").
+- **Impact analysis** on pending cards (from the proposal, pure `scrImpact(data, scr)`): features and stories touched, ACs added / changed / removed (`ScopeDiff`), new tasks, and completion before → after ("62% → 51%").
 - **Approve** and **Reject** each need an approver name (prefilled with the current scope's approver) and a reason. Both call `decideScr`.
 - Decided cards show the decision, who decided and when, and the reason. Approved ones add "created v1.1" with a link to Scope's compare view.
 - No pending SCRs: "Nothing waiting for approval."

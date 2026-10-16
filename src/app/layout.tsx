@@ -20,7 +20,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <header className="border-b">
           <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
             <Link href="/" className="font-semibold">
-              Pulse Agentic
+              Pulse Agentic <span className="text-xs text-muted-foreground">(Alpha Testing)</span>
             </Link>
             <span className="text-sm text-muted-foreground">Data as of {formatDateTime(getNow())}</span>
           </div>
