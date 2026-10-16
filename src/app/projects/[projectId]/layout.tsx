@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
-import { ProjectHeader } from '@/components/project/project-header'
-import { ProjectSidebar } from '@/components/project/project-sidebar'
+import { DraftProjectLayout } from '@/components/project/draft-project-layout'
+import { ProjectShell } from '@/components/project/project-shell'
 import { getRepository } from '@/lib/data'
 
 export default async function ProjectLayout({
@@ -11,16 +11,11 @@ export default async function ProjectLayout({
   params: Promise<{ projectId: string }>
 }) {
   const { projectId } = await params
-  const header = await getRepository().getProjectHeader(projectId)
-  if (!header) notFound()
+  const repo = getRepository()
+  const header = await repo.getProjectHeader(projectId)
+  if (header) return <ProjectShell header={header}>{children}</ProjectShell>
 
-  return (
-    <div className="space-y-6">
-      <ProjectHeader header={header} />
-      <div className="grid gap-6 md:grid-cols-[12rem_1fr]">
-        <ProjectSidebar projectId={header.id} />
-        <div className="min-w-0">{children}</div>
-      </div>
-    </div>
-  )
+  const draft = await repo.getPlannerDraft(projectId)
+  if (!draft) notFound()
+  return <DraftProjectLayout draft={draft}>{children}</DraftProjectLayout>
 }
