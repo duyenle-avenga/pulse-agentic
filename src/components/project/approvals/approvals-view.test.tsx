@@ -1,4 +1,4 @@
-import { fireEvent, screen, within } from '@testing-library/react'
+import { act, fireEvent, screen, within } from '@testing-library/react'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { getDecisionStore } from '@/lib/decisions/use-decisions'
 import { expenseTracker } from '@/lib/mock/project-a'
@@ -76,6 +76,15 @@ describe('ApprovalsView', () => {
     expect(card('SCR-3').getByText('Reason: Not in this release: support answers by email only.')).toBeInTheDocument()
     const titles = screen.getAllByRole('article').map((a) => a.getAttribute('aria-labelledby'))
     expect(titles).toEqual(['SCR-2-title', 'SCR-1-title', 'SCR-3-title'])
+  })
+
+  it('does not move focus to Decided when a pending SCR is decided by something other than a click here (e.g. a reload applying a stored decision)', () => {
+    renderProject(<ApprovalsView />, customerPortal)
+    expect(screen.getByRole('heading', { name: 'Waiting for a decision (1)' })).toBeInTheDocument()
+    act(() => {
+      store.decideScr(customerPortal.project.id, 'SCR-2', { status: 'rejected', decidedAt: '2026-10-16T09:00:00+02:00', decidedBy: 'Lena Fischer', reason: 'Not now' })
+    })
+    expect(screen.getByRole('heading', { name: 'Decided (3)' })).not.toHaveFocus()
   })
 
   it('rejecting keeps the scope version', () => {

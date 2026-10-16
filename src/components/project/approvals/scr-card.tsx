@@ -9,7 +9,16 @@ import { scrImpact } from '@/lib/progress/scrImpact'
 import { ScopeDiffList } from '../scope-diff-list'
 import { DecideScrForm } from './decide-scr-form'
 
-export function ScrCard({ scr, data, now, defaultApprover }: { scr: ScopeChangeRequest; data: ProjectData; now: IsoDateTime; defaultApprover: string }) {
+interface ScrCardProps {
+  scr: ScopeChangeRequest
+  data: ProjectData
+  now: IsoDateTime
+  defaultApprover: string
+  /** Called right before a pending SCR is decided, so the caller can follow with focus. */
+  onDecided?: () => void
+}
+
+export function ScrCard({ scr, data, now, defaultApprover, onDecided }: ScrCardProps) {
   const titleId = `${scr.id}-title`
   const meta = [scrSourceLabel(scr), `raised ${formatDate(scr.raisedAt)}`, ...(scr.status === 'pending' ? [`waiting ${formatDuration(scr.raisedAt, now)}`] : [])]
 
@@ -25,7 +34,7 @@ export function ScrCard({ scr, data, now, defaultApprover }: { scr: ScopeChangeR
           {scr.status === 'pending' ? (
             <>
               <Impact data={data} scr={scr} />
-              <DecideScrForm projectId={data.project.id} scrId={scr.id} defaultApprover={defaultApprover} now={now} />
+              <DecideScrForm projectId={data.project.id} scrId={scr.id} defaultApprover={defaultApprover} now={now} onDecided={onDecided} />
             </>
           ) : (
             <Decision data={data} scr={scr} />

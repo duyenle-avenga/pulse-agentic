@@ -14,6 +14,8 @@ interface Props {
   scrId: string
   defaultApprover: string
   now: IsoDateTime
+  /** Called right before the decision is stored, so a caller can record that focus should follow it. */
+  onDecided?: () => void
 }
 
 interface Invalid {
@@ -23,7 +25,7 @@ interface Invalid {
 
 const NOT_INVALID: Invalid = { approver: false, reason: false }
 
-export function DecideScrForm({ projectId, scrId, defaultApprover, now }: Props) {
+export function DecideScrForm({ projectId, scrId, defaultApprover, now, onDecided }: Props) {
   const [approver, setApprover] = useState(defaultApprover)
   const [reason, setReason] = useState('')
   const [errors, setErrors] = useState<string[]>([])
@@ -37,6 +39,7 @@ export function DecideScrForm({ projectId, scrId, defaultApprover, now }: Props)
     setInvalid(nextInvalid)
     setErrors(missing)
     if (missing.length > 0) return
+    onDecided?.()
     getDecisionStore().decideScr(projectId, scrId, { status, decidedAt: now, decidedBy: approver.trim(), reason: reason.trim() })
   }
 
