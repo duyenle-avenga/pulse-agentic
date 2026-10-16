@@ -2,6 +2,7 @@
 
 **Date:** 2026-10-16
 **Status:** Approved design, ready for an implementation plan
+**Update 2026-10-16:** the burn-up (§4.3, §6.2) was removed; see 2026-10-16-new-project-wizard-design.md §5.
 **Source:** README §5 (POC scope), §3.2–3.3 (evidence model), `docs/demo/intelligent-flow-scope.md` (Project C)
 
 ## 1. Goal

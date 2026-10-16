@@ -121,8 +121,8 @@ interface DecisionStore {
 - Returns `null` until v1 is locked.
 - Otherwise returns a normal `ProjectData`:
   - `project`: from the brief, `kind: 'greenfield'`, `hasCi: true`, one scope version `v1` (`lockedAt`/`approvedBy` from the lock) containing only approved stories (features with no approved story are dropped).
-  - `tasks`: trimmed to ACs in v1; tasks with no ACs left are dropped; `dependsOn` filtered to remaining tasks.
-  - `prs`, `humanTests`, `scrs`, `signals`: empty.
+  - `tasks`: trimmed to ACs in v1; tasks with no ACs left are dropped; a kept task whose own story was rejected takes the story of its first remaining AC; `dependsOn` filtered to remaining tasks.
+  - `prs`, `humanTests`, `scrs`, `warnings`: empty.
 - `deriveAcStates` and `rollup` then work unchanged (every AC is `not_started`).
 
 ## 4. Portfolio and Overview integration
@@ -133,14 +133,14 @@ interface DecisionStore {
 - The server page also loads the draft and passes the server rows plus the draft to a client `PortfolioView`.
 - `PortfolioView` reads decisions; when Intelligent Flow v2 is locked it appends its row (built with `applyDecisions` + `toPortfolioRow`) and includes it in the totals strip.
 - The row appears right after hydration (server render shows the 3 server projects).
-- **Totals strip, reordered:** three cards in this order: **Pending approvals**, **Pending user testing**, **Open signals** (with its "N high" detail). The **Projects** card is removed.
+- **Totals strip, reordered:** three cards in this order: **Pending approvals**, **Pending user testing**, **Open warnings** (with its "N high" detail). The **Projects** card is removed.
 - **Project count:** a small grey line (`text-sm text-muted-foreground`) directly above the projects table, e.g. "3 projects" ("1 project" when singular). It includes Intelligent Flow v2 once locked.
 
 **Project pages (`/projects/[projectId]`).**
 - Layout and page: if the repository has no project for the id but has a planner draft, render client components instead of `notFound()`:
   - `DraftProjectLayout`: the same `ProjectHeader` + `ProjectSidebar`, built from `applyDecisions` + `toProjectHeader`.
-  - `DraftOverview`: the same `KpiCards`, `AcStateBar`, `SignalsList`, `ActivityFeed` from `toProjectOverview`.
-- If v1 isn't locked, both show "Intelligent Flow v2's scope isn't locked yet" with a link to the wizard.
+  - `DraftOverview`: the same `KpiCards`, `AcStateBar`, `WarningsList`, `ActivityFeed` from `toProjectOverview`.
+- If v1 isn't locked, `DraftProjectLayout` shows "Intelligent Flow v2's scope isn't locked yet" with a link to the wizard instead of the page; `DraftOverview` itself renders nothing until v1 is locked.
 - Any other unknown id still returns the 404 page.
 
 ## 5. Burn-up removal
