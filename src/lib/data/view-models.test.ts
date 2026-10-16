@@ -1,13 +1,20 @@
 import { describe, expect, it } from 'vitest'
+import { EMPTY_DECISIONS } from '@/lib/domain/planner'
+import { DEMO_NOW } from '@/lib/mock/clock'
 import { customerPortal } from '@/lib/mock/project-b'
 import { expenseTracker } from '@/lib/mock/project-a'
+import { applyProjectDecisions } from '@/lib/progress/applyProjectDecisions'
 import { toPortfolioRow, toProjectHeader, toProjectOverview } from './view-models'
 
 describe('view models', () => {
-  it('builds a portfolio row', () => {
-    expect(toPortfolioRow(customerPortal)).toMatchObject({
+  it('builds a portfolio row on the data users actually see (merged with this browser’s decisions)', () => {
+    // B's own mock warnings carry none of the computed types, but the merge adds a pending_decision
+    // warning (SCR-2 has been waiting since before DEMO_NOW) and a pending_user_testing one, so the
+    // real count users see (5) is higher than B's raw mock warnings array (3).
+    const merged = applyProjectDecisions(customerPortal, EMPTY_DECISIONS, DEMO_NOW)
+    expect(toPortfolioRow(merged)).toMatchObject({
       id: 'customer-portal', scopeLabel: 'v1.1', completionPct: 57, deliveryPct: 71, verified: 12, total: 21,
-      openWarnings: 3, highWarnings: 2, pendingApprovals: 1, pendingUserTesting: 1,
+      openWarnings: 5, highWarnings: 2, pendingApprovals: 1, pendingUserTesting: 1,
       lastActivityAt: '2026-10-15T14:00:00+02:00',
     })
   })
