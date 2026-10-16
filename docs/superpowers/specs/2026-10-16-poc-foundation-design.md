@@ -42,7 +42,7 @@ src/
     projects/[projectId]/
       layout.tsx                project header + sidebar
       page.tsx                  Overview
-      not-found.tsx
+      (404 handled by src/app/not-found.tsx)
   components/
     ui/                         shadcn components (card, badge, table, chart, progress, separator, tooltip)
     portfolio/                  PortfolioTotals, ProjectsTable
@@ -183,7 +183,7 @@ View models are plain serialisable objects (ISO strings for dates). `getReposito
 
 ### 6.3 Errors and empty states
 
-- Unknown `projectId` → `notFound()` → project `not-found.tsx` with a link back to the Portfolio.
+- Unknown `projectId` → `notFound()` → the root `src/app/not-found.tsx` with a link back to the Portfolio. (A `notFound()` thrown in a layout is handled by the parent segment, so a not-found file next to the project layout would never be used.)
 - Signals, activity and pending lists each show a short empty‑state message when empty.
 
 ## 7. Demo data
