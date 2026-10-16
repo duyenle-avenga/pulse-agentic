@@ -12,7 +12,7 @@ src/
     page.tsx                    Portfolio
     projects/new/page.tsx       New project wizard
     projects/[projectId]/
-      layout.tsx                project header + sidebar
+      layout.tsx                project header + sidebar; falls back to the planner draft (`DraftProjectLayout`) when the id isn't a real project
       page.tsx                  Project overview
   components/
     ui/                         shadcn/ui primitives (generated; keep hand edits minimal, e.g. table `scope`)
@@ -29,7 +29,7 @@ src/
     decisions/                  decision store: localStorage now, DB later
     mock/                       demo data for projects A, B and C, builders for writing it, and the demo clock
       planner/                  planner drafts as JSON
-    wizard/                     wizard helpers (ticket Markdown)
+    wizard/                     wizard helpers (ticket Markdown, lock rule)
     format.ts                   date and duration formatting
     utils.ts                    `cn()` class helper (shadcn)
 e2e/                            Playwright smoke tests
@@ -47,6 +47,8 @@ page.tsx (async Server Component)
         recentActivity
   → plain view models (props)
   → components
+
+client path (wizard project): draft prop + decisions (localStorage) → applyDecisions → view-models → components
 ```
 
 Rules:

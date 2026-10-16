@@ -298,7 +298,7 @@ The POC demonstrates the end‑to‑end story with **mock data only**. There is 
 | Screen | What it shows |
 |---|---|
 | **Portfolio** | All agentic projects: completion %, delivery %, open warnings, pending approvals, pending user testing |
-| **New project wizard** | Describe → generated features, stories and ACs (mock planner) → edit → approve and lock v1 → generated tasks (POC: a click‑through demo that creates *Intelligent Flow v2* from prefilled planner JSON; only approvals and the v1 lock are stored, in localStorage) |
+| **New project wizard** | Describe → clarifying questions → generated features, stories and ACs (mock planner) → edit → approve and lock v1 → generated tasks (POC: a click‑through demo that creates *Intelligent Flow v2* from prefilled planner JSON, with no edit step; only approvals and the v1 lock are stored, in localStorage) |
 | **Project overview** | Progress (verified vs implemented), AC state breakdown, top warnings, **pending user testing** count, recent activity |
 | **User testing** | Queue of 👤 ACs waiting for a human; record pass or fail with environment, tester, date and notes |
 | **Scope** | Tree of features → stories → ACs with status. Version switcher and diff between versions. |

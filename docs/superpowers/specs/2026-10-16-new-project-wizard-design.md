@@ -23,7 +23,7 @@ Entry point: a **New project** button in the Portfolio header.
 
 A stepper with four steps:
 
-1. **Describe.** A form prefilled from `brief.json` (name, goal, users, constraints, tech preferences, non-goals). Fields are read-only with a note "Prefilled for the demo". **Submit to planner** shows "Planner is drafting…" for about 1 second, then moves on.
+1. **Describe.** A read-only summary of the brief from `brief.json` (name, goal, users, constraints, tech preferences, non-goals), with a note "Prefilled for the demo". **Submit to planner** shows "Planner is drafting…" for about 1 second, then moves on.
 2. **Clarifying questions.** From `questions.json`; each question shows its options with the prefilled answer selected (read-only). **Submit answers** shows the drafting state again, then moves on.
 3. **Review generated scope.** From `scope.json`: features → stories → ACs, with 👤 on human-test ACs.
    - Each story card has **Approve** and **Reject**. Its current decision is shown on the card and can be changed until v1 is locked.
