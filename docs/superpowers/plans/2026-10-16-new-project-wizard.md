@@ -2060,7 +2060,48 @@ git commit -m "test: add end-to-end test for the wizard" -m "Co-Authored-By: Cla
 
 ---
 
-### Task 13: Docs
+### Task 13: Rename "signals" to "warnings"
+
+Spec §5a. A mechanical rename across code, UI text and tests, done after the wizard work so it covers the new code too. No behaviour changes.
+
+**Files:** everything `grep -rli "signal" src e2e` lists, plus `git mv src/components/project/signals-list.tsx src/components/project/warnings-list.tsx` and its test.
+
+- [ ] **Step 1: Rename**, using this mapping exactly:
+
+| Before | After |
+|---|---|
+| `Signal`, `SignalType` (types.ts) | `Warning`, `WarningType` |
+| `ProjectData.signals` | `ProjectData.warnings` |
+| `PortfolioRow.openSignals`, `highSignals` | `openWarnings`, `highWarnings` |
+| `ProjectOverview.topSignals` | `topWarnings` |
+| `SignalsList` in `signals-list.tsx` (+ `signals-list.test.tsx`) | `WarningsList` in `warnings-list.tsx` (+ `warnings-list.test.tsx`) |
+| Mock ids `'SIG-1'`, `'SIG-2'`, `'SIG-3'` | `'WRN-1'`, `'WRN-2'`, `'WRN-3'` |
+| UI "Open signals" / "Top signals" / "No open signals." | "Open warnings" / "Top warnings" / "No open warnings." |
+| Local names (`signal`, `signals`, `sig`, `SEVERITY_RANK` comments), test titles ("has red-main, regression and ticked-but-red signals" …) | the `warning(s)` equivalents |
+
+Keep the `type` values (`'red_main'`, `'regression'`, …) and `'pending_user_testing'` unchanged.
+
+- [ ] **Step 2: Check nothing is left**
+
+Run: `grep -rni "signal" src e2e`
+Expected: no output.
+
+- [ ] **Step 3: Verify**
+
+Run: `npx vitest run && npm run typecheck && npm run lint && npm run test:e2e`
+Expected: all pass with the same test counts as before the rename.
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add src e2e   # stages edits, renames and deletions under src/ and e2e/ only
+git status --short   # check: only src/ and e2e/ paths, no .env
+git commit -m "refactor: rename signals to warnings" -m "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
+```
+
+---
+
+### Task 14: Docs
 
 **Files:**
 - Modify: `ARCHITECTURE.md`, `README.md`, `docs/superpowers/specs/2026-10-16-poc-foundation-design.md`
@@ -2075,6 +2116,8 @@ git commit -m "test: add end-to-end test for the wizard" -m "Co-Authored-By: Cla
 - New project wizard row: append "(POC: a click-through demo that creates *Intelligent Flow v2* from prefilled planner JSON; only approvals and the v1 lock are stored, in localStorage)".
 Keep README's tone and the non-breaking hyphens it uses.
 
+- [ ] **Step 2b: README warnings rename** (spec §5a) — rename the concept "signal(s)" to "warning(s)" in: §2 concept table row, the §3.1 flowchart label (`Progress, signals<br/>and change requests`), §3.5 heading, intro sentence and table header, the §4 diagram node (`SIG[Signals engine…]` → `WRN[Warnings engine…]`, and its edge `API --> SIG`) and the "Signals engine" component bullet, §5 Portfolio and Project overview rows, the Project B demo line ("red‑main warning"), and roadmap item 7 ("Warnings v2"). Do **not** change §1 "real delivery signals (PRs, commits, CI checks)" or §3.2 "a secondary signal". Also change "signals" → "warnings" in ARCHITECTURE.md's "Mocks hold raw facts only" line. Afterwards `grep -ni "signal" README.md` should list only lines 25 and 103's plain-English uses.
+
 - [ ] **Step 3: Foundation spec** — in `2026-10-16-poc-foundation-design.md`, add at the top under **Status**: `**Update 2026-10-16:** the burn-up (§4.3, §6.2) was removed; see 2026-10-16-new-project-wizard-design.md §5.` Don't rewrite the old sections.
 
 - [ ] **Step 4: Commit**
@@ -2086,7 +2129,7 @@ git commit -m "docs: document the wizard, decision store and burn-up removal" -m
 
 ---
 
-### Task 14: Final verification
+### Task 15: Final verification
 
 Use `superpowers:verification-before-completion`.
 
@@ -2099,7 +2142,7 @@ npm run lint && npm run typecheck && npm test && npm run build && npm run test:e
 Expected: every command exits 0. Record the counts.
 
 - [ ] **Step 2: Look at the screens** (production build, `npm run start -- -p 3200`, Playwright browser tools, 1440×900 and 1280×800, light and dark)
-1. `/`: "3 projects", cards in the order Pending approvals · Pending user testing · Open signals, a New project button.
+1. `/`: "3 projects", cards in the order Pending approvals · Pending user testing · Open warnings, a New project button.
 2. `/projects/new`: walk all four steps; the drafting state shows briefly; Reject one story, Approve all, Lock v1; tickets render and Copy as Markdown works.
 3. `/`: "4 projects", Intelligent Flow v2 at 0% / 0%.
 4. `/projects/intelligent-flow-v2`: header, sidebar, KPIs 0%, state bar all "Not started", activity "Scope v1 locked by Demo approver".

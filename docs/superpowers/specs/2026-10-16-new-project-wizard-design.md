@@ -151,6 +151,14 @@ interface DecisionStore {
 - Keep each AC's `history` (used for "oldest waiting for a tester").
 - Update README §5 ("Project overview" row) and the foundation spec §4.3/§6.2 to drop the burn-up.
 
+## 5a. Rename "signals" to "warnings"
+
+The items are risks that need action (red main, regression, stalled task, overdue decision…), so the product calls them **warnings**, everywhere:
+- **UI:** "Open warnings" (Portfolio card), "Top warnings" (Overview), "No open warnings.".
+- **Code:** `Signal` → `Warning`, `SignalType` → `WarningType`, `ProjectData.signals` → `warnings`, `PortfolioRow.openSignals`/`highSignals` → `openWarnings`/`highWarnings`, `ProjectOverview.topSignals` → `topWarnings`, `SignalsList` (`signals-list.tsx`) → `WarningsList` (`warnings-list.tsx`), mock ids `SIG-n` → `WRN-n`, test names and e2e texts.
+- **Docs:** README §2 concept, §2.1 flowchart label, §3.5 ("Warnings and suggestions"), §4 ("Warnings engine"), §5 screens and demo data, §6 roadmap item 7; ARCHITECTURE.md.
+- **Not renamed:** plain-English uses that aren't the concept: README §1 "real delivery signals (PRs, commits, CI checks)", §3.2 "a secondary signal", and the "Signal | Value" table header in `docs/demo/intelligent-flow-scope.md`. Earlier specs and plans stay as written (history).
+
 ## 6. Testing
 
 **Vitest:**
