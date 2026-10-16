@@ -1,0 +1,26 @@
+[
+  {
+    "id": "q-intake",
+    "question": "Which channels should start a work item at launch?",
+    "options": ["Jira only", "Jira and Slack", "Slack only"],
+    "answer": "Jira and Slack"
+  },
+  {
+    "id": "q-approver",
+    "question": "Who may approve a gate?",
+    "options": ["Anyone on the project", "A named person in the configured role", "Any lead"],
+    "answer": "A named person in the configured role"
+  },
+  {
+    "id": "q-retention",
+    "question": "How long must evidence be kept?",
+    "options": ["1 year", "Locked retention, set per client", "Until the project ends"],
+    "answer": "Locked retention, set per client"
+  },
+  {
+    "id": "q-connector",
+    "question": "Which code host should the first deploy connector support?",
+    "options": ["GitHub", "GitLab", "Both"],
+    "answer": "GitHub"
+  }
+]
