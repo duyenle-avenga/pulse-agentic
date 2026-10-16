@@ -110,4 +110,64 @@ describe('LocalStorageDecisionStore', () => {
     const store = createLocalStorageDecisionStore(() => undefined)
     expect(store.get(P)).toEqual(EMPTY_DECISIONS)
   })
+
+  const result = { acId: 'AC-1', result: 'pass' as const, environment: 'staging', tester: 'Ana Silva', testedAt: AT }
+  const approve = { status: 'approved' as const, decidedAt: AT, decidedBy: 'Maya Patel', reason: 'Accountants need it' }
+
+  it('records human test results in order and persists them', () => {
+    const store = make()
+    const failed = { ...result, acId: 'AC-2', result: 'fail' as const, notes: 'Button hidden on small screens' }
+    store.recordHumanTest(P, result)
+    store.recordHumanTest(P, failed)
+    expect(store.get(P).humanTests).toEqual([result, failed])
+    expect(make().get(P).humanTests).toEqual([result, failed])
+  })
+
+  it('decides an SCR only once', () => {
+    const store = make()
+    store.decideScr(P, 'SCR-1', approve)
+    store.decideScr(P, 'SCR-1', { ...approve, status: 'rejected' })
+    expect(store.get(P).scrs).toEqual({ 'SCR-1': approve })
+    expect(make().get(P).scrs).toEqual({ 'SCR-1': approve })
+  })
+
+  it('loads decisions saved before human tests and SCRs existed', () => {
+    storage = fakeStorage({ [DECISIONS_KEY]: JSON.stringify({ [P]: { stories: { 'US-1.1': 'approved' }, lock: null } }) })
+    expect(make().get(P)).toEqual({ stories: { 'US-1.1': 'approved' }, lock: null })
+  })
+
+  it('drops malformed human tests and SCR decisions', () => {
+    storage = fakeStorage({
+      [DECISIONS_KEY]: JSON.stringify({
+        [P]: {
+          stories: {},
+          lock: null,
+          humanTests: [{ ...result, result: 'maybe' }, { ...result, acId: 'AC-2' }, 'nope'],
+          scrs: { 'SCR-1': { status: 'approved', decidedAt: AT, decidedBy: 'Maya Patel' }, 'SCR-2': { ...approve, status: 'rejected' } },
+        },
+      }),
+    })
+    const d = make().get(P)
+    expect(d.humanTests?.map((t) => t.acId)).toEqual(['AC-2'])
+    expect(Object.keys(d.scrs ?? {})).toEqual(['SCR-2'])
+  })
+
+  it('reset clears human tests and SCR decisions too', () => {
+    const store = make()
+    store.recordHumanTest(P, result)
+    store.decideScr(P, 'SCR-1', approve)
+    store.reset(P)
+    expect(store.get(P)).toEqual(EMPTY_DECISIONS)
+  })
+
+  it('getAll returns every project and stays the same object until something changes', () => {
+    const store = make()
+    store.decideScr('expense-tracker', 'SCR-1', approve)
+    store.recordHumanTest('intelligent-flow', result)
+    const all = store.getAll()
+    expect(Object.keys(all).sort()).toEqual(['expense-tracker', 'intelligent-flow'])
+    expect(store.getAll()).toBe(all)
+    store.recordHumanTest('intelligent-flow', { ...result, acId: 'AC-2' })
+    expect(store.getAll()).not.toBe(all)
+  })
 })
