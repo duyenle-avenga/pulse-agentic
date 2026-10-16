@@ -14,6 +14,8 @@ describe.each(ALL_PROJECTS.map((d) => [d.project.id, d] as const))('mock integri
   const storyIds = project.scopeVersions.flatMap((v) => v.features.flatMap((f) => f.stories.map((s) => s.id)))
   const taskIds = tasks.map((t) => t.id)
   const prNumbers = prs.map((p) => p.number)
+  const acStoryIds = new Map<string, string>()
+  for (const v of project.scopeVersions) for (const f of v.features) for (const s of f.stories) for (const a of s.acs) acStoryIds.set(a.id, s.id)
 
   it('has unique ids', () => {
     expect(unique(acsOf(currentScope(project)).map((a) => a.id))).toBe(true)
@@ -28,6 +30,13 @@ describe.each(ALL_PROJECTS.map((d) => [d.project.id, d] as const))('mock integri
       expect(storyIds, `${t.id} story`).toContain(t.storyId)
       for (const id of t.acIds) expect(acIds, `${t.id} → ${id}`).toContain(id)
       for (const id of t.dependsOn) expect(taskIds, `${t.id} depends on ${id}`).toContain(id)
+    }
+  })
+
+  it('ties every task to its story through at least one of its ACs', () => {
+    for (const t of tasks) {
+      const tied = t.acIds.some((id) => acStoryIds.get(id) === t.storyId)
+      expect(tied, `${t.id} storyId ${t.storyId}`).toBe(true)
     }
   })
 
