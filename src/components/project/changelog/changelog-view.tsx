@@ -1,6 +1,6 @@
 'use client'
 
-import { scrSourceLabel } from '@/components/labels'
+import { scopeOriginLabel, scrSourceLabel } from '@/components/labels'
 import { Card, CardContent } from '@/components/ui/card'
 import type { ScopeChangeRequest } from '@/lib/domain/types'
 import { formatDate, formatDateTime } from '@/lib/format'
@@ -13,19 +13,20 @@ import { ScreenHeading } from '../screen-heading'
 export function ChangelogView() {
   const { data } = useProject()
   const entries = changelog(data)
+  const initialLabel = scopeOriginLabel(data.project)
   return (
     <div className="space-y-4">
       <ScreenHeading title="Changelog" description="Append-only record of scope versions and decisions." />
       <ol aria-label="Changelog entries" className="space-y-3">
         {entries.map((entry, i) => (
-          <Entry key={`${entry.kind}-${entry.at}-${i}`} entry={entry} index={i} />
+          <Entry key={`${entry.kind}-${entry.at}-${i}`} entry={entry} index={i} initialLabel={initialLabel} />
         ))}
       </ol>
     </div>
   )
 }
 
-function Entry({ entry, index }: { entry: ChangelogEntry; index: number }) {
+function Entry({ entry, index, initialLabel }: { entry: ChangelogEntry; index: number; initialLabel: string }) {
   const headingId = `changelog-${index}`
   const title =
     entry.kind === 'initial' ? `${entry.version} locked` : entry.kind === 'version' ? `${entry.from} → ${entry.to}` : `${entry.scr.id} rejected, no version change`
@@ -40,7 +41,7 @@ function Entry({ entry, index }: { entry: ChangelogEntry; index: number }) {
           {entry.kind === 'initial' && (
             <>
               <p className="text-muted-foreground">{`${formatDateTime(entry.at)} · approved by ${entry.approvedBy}`}</p>
-              <p>Initial scope</p>
+              <p>{initialLabel}</p>
             </>
           )}
           {entry.kind === 'version' && (
