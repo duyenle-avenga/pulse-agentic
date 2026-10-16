@@ -23,6 +23,8 @@ const FILTERS: { id: Filter; label: string }[] = [
   { id: 'none', label: 'No evidence' },
 ]
 
+const earlierRowId = (acId: string, i: number) => `${acId}-earlier-${i}`
+
 function matches(filter: Filter, state: AcState, items: EvidenceItem[]): boolean {
   switch (filter) {
     case 'all':
@@ -80,53 +82,68 @@ export function EvidenceView() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {rows.map(({ ac, state, items }) => {
-            const [latest, ...earlier] = items
-            const open = expanded.has(ac.id)
-            return (
-              <Fragment key={ac.id}>
-                <TableRow>
-                  <TableCell title={ac.text}>
-                    {ac.id}
-                    {ac.humanTest && (
-                      <>
-                        {' '}
-                        <HumanTestMark />
-                      </>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <AcStateBadge state={state} />
-                  </TableCell>
-                  {latest ? (
-                    <EvidenceCells item={latest} />
-                  ) : (
-                    <TableCell colSpan={6} className="text-muted-foreground">
-                      No evidence yet
-                    </TableCell>
-                  )}
-                </TableRow>
-                {earlier.length > 0 && (
+          {rows.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={8} className="text-muted-foreground">
+                No ACs match this filter.
+              </TableCell>
+            </TableRow>
+          ) : (
+            rows.map(({ ac, state, items }) => {
+              const [latest, ...earlier] = items
+              const open = expanded.has(ac.id)
+              const panelIds = earlier.map((_, i) => earlierRowId(ac.id, i)).join(' ')
+              return (
+                <Fragment key={ac.id}>
                   <TableRow>
-                    <TableCell />
-                    <TableCell colSpan={7}>
-                      <button type="button" aria-expanded={open} onClick={() => toggle(ac.id)} className="text-xs text-muted-foreground hover:underline">
-                        {open ? 'Hide earlier' : `+${earlier.length} earlier`}
-                      </button>
+                    <TableCell title={ac.text}>
+                      {ac.id}
+                      {ac.humanTest && (
+                        <>
+                          {' '}
+                          <HumanTestMark />
+                        </>
+                      )}
                     </TableCell>
+                    <TableCell>
+                      <AcStateBadge state={state} />
+                    </TableCell>
+                    {latest ? (
+                      <EvidenceCells item={latest} />
+                    ) : (
+                      <TableCell colSpan={6} className="text-muted-foreground">
+                        No evidence yet
+                      </TableCell>
+                    )}
                   </TableRow>
-                )}
-                {open &&
-                  earlier.map((item, i) => (
-                    <TableRow key={`${ac.id}-earlier-${i}`} className="text-muted-foreground">
+                  {earlier.length > 0 && (
+                    <TableRow>
                       <TableCell />
-                      <TableCell />
-                      <EvidenceCells item={item} />
+                      <TableCell colSpan={7}>
+                        <button
+                          type="button"
+                          aria-expanded={open}
+                          aria-controls={open ? panelIds : undefined}
+                          onClick={() => toggle(ac.id)}
+                          className="text-xs text-muted-foreground hover:underline"
+                        >
+                          {open ? 'Hide earlier' : `+${earlier.length} earlier`}
+                        </button>
+                      </TableCell>
                     </TableRow>
-                  ))}
-              </Fragment>
-            )
-          })}
+                  )}
+                  {open &&
+                    earlier.map((item, i) => (
+                      <TableRow key={earlierRowId(ac.id, i)} id={earlierRowId(ac.id, i)} className="text-muted-foreground">
+                        <TableCell />
+                        <TableCell />
+                        <EvidenceCells item={item} />
+                      </TableRow>
+                    ))}
+                </Fragment>
+              )
+            })
+          )}
         </TableBody>
       </Table>
     </div>

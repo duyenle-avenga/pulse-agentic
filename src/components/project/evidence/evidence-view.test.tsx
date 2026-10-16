@@ -1,12 +1,13 @@
 import { fireEvent, screen, within } from '@testing-library/react'
 import { beforeEach, describe, expect, it } from 'vitest'
 import { getDecisionStore } from '@/lib/decisions/use-decisions'
+import { expenseTracker } from '@/lib/mock/project-a'
 import { customerPortal } from '@/lib/mock/project-b'
 import { renderProject } from '../test-utils'
 import { EvidenceView } from './evidence-view'
 
 // AC cells are named "AC-x.y.z", plus " Needs a human tester" for 👤 ACs.
-const acCells = () => within(screen.getByRole('table')).getAllByRole('cell', { name: /^AC-/ })
+const acCells = () => within(screen.getByRole('table')).queryAllByRole('cell', { name: /^AC-/ })
 const rowOf = (acId: string) => {
   const cell = within(screen.getByRole('table')).getByRole('cell', { name: (name) => name === acId || name.startsWith(`${acId} `) })
   const row = cell.closest('tr')
@@ -38,11 +39,33 @@ describe('EvidenceView', () => {
     const toggles = screen.getAllByRole('button', { name: /earlier/ })
     const forAc = toggles.find((b) => b.closest('tr')?.previousElementSibling?.textContent?.startsWith('AC-3.1.2'))
     if (!forAc) throw new Error('no toggle for AC-3.1.2')
+    expect(forAc).not.toHaveAttribute('aria-controls')
     fireEvent.click(forAc)
     const revealedRow = forAc.closest('tr')?.nextElementSibling
     if (!revealedRow) throw new Error('no revealed row for AC-3.1.2')
     expect(within(revealedRow as HTMLElement).getByText('PR #103')).toBeInTheDocument()
     expect(rowOf('AC-3.1.2').queryByText('PR #103')).not.toBeInTheDocument()
+  })
+
+  it('ties the earlier-evidence toggle to the rows it reveals', () => {
+    renderProject(<EvidenceView />, customerPortal)
+    const toggles = screen.getAllByRole('button', { name: /earlier/ })
+    const forAc = toggles.find((b) => b.closest('tr')?.previousElementSibling?.textContent?.startsWith('AC-3.1.2'))
+    if (!forAc) throw new Error('no toggle for AC-3.1.2')
+    fireEvent.click(forAc)
+    const ids = forAc.getAttribute('aria-controls')?.split(' ').filter(Boolean) ?? []
+    expect(ids).toHaveLength(1)
+    for (const id of ids) expect(document.getElementById(id)).toBeInTheDocument()
+    fireEvent.click(forAc)
+    expect(forAc).not.toHaveAttribute('aria-controls')
+  })
+
+  it('shows an empty state when the filter matches no ACs', () => {
+    getDecisionStore().reset(expenseTracker.project.id)
+    renderProject(<EvidenceView />, expenseTracker)
+    fireEvent.click(screen.getByRole('button', { name: 'Failing or regressed' }))
+    expect(acCells()).toHaveLength(0)
+    expect(screen.getByText('No ACs match this filter.')).toBeInTheDocument()
   })
 
   it('filters by state and by missing evidence', () => {
