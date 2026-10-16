@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { getDecisionStore, useDecisions, useIsClient } from '@/lib/decisions/use-decisions'
 import type { PlannerDraft } from '@/lib/domain/planner'
 import type { IsoDateTime } from '@/lib/domain/types'
@@ -32,7 +32,7 @@ export function Wizard({ draft, now, draftingMs = 900 }: { draft: PlannerDraft; 
   useEffect(() => () => clearDraftTimer(timer), [])
 
   // When the step changes (not on first render), move focus to its heading so keyboard and screen reader users follow along.
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!isClient) return
     const previous = shownStep.current
     shownStep.current = current
