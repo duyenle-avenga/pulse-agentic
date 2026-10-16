@@ -33,7 +33,7 @@ export function ScrCard({ scr, data, now, defaultApprover, onDecided }: ScrCardP
           </div>
           {scr.status === 'pending' ? (
             <>
-              <Impact data={data} scr={scr} />
+              <Impact data={data} scr={scr} now={now} />
               <DecideScrForm projectId={data.project.id} scrId={scr.id} defaultApprover={defaultApprover} now={now} onDecided={onDecided} />
             </>
           ) : (
@@ -45,8 +45,8 @@ export function ScrCard({ scr, data, now, defaultApprover, onDecided }: ScrCardP
   )
 }
 
-function Impact({ data, scr }: { data: ProjectData; scr: ScopeChangeRequest }) {
-  const impact = scrImpact(data, scr)
+function Impact({ data, scr, now }: { data: ProjectData; scr: ScopeChangeRequest; now: IsoDateTime }) {
+  const impact = scrImpact(data, scr, now)
   if (!impact) return <p className="text-sm text-muted-foreground">No proposed change attached.</p>
   return (
     <div className="space-y-2 rounded-lg bg-muted/50 p-3">
