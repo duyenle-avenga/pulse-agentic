@@ -26,6 +26,8 @@ export interface ScopeVersion {
   label: string
   lockedAt: IsoDateTime
   approvedBy: string
+  /** The SCR that created this version; absent for the initial version. */
+  changedBy?: string
   features: Feature[]
 }
 
@@ -100,6 +102,16 @@ export interface HumanTestResult {
   notes?: string
 }
 
+/** What an SCR would change in the current scope, and the tasks it would add. */
+export interface ScopeProposal {
+  /** featureTitle is set only when the story goes into a new feature with id featureId. */
+  addStories: { featureId: string; featureTitle?: string; story: UserStory }[]
+  addAcs: { storyId: string; ac: AcceptanceCriterion }[]
+  changeAcs: { acId: string; text: string }[]
+  removeAcIds: string[]
+  tasks: Omit<Task, 'projectId'>[]
+}
+
 export type ScrSource = 'agent_pr' | 'human' | 'pulse'
 export type ScrStatus = 'pending' | 'approved' | 'rejected'
 
@@ -113,7 +125,11 @@ export interface ScopeChangeRequest {
   raisedAt: IsoDateTime
   decidedAt?: IsoDateTime
   decidedBy?: string
+  /** Why it was raised. */
   rationale?: string
+  /** Why it was approved or rejected. */
+  decisionReason?: string
+  proposal?: ScopeProposal
 }
 
 export type WarningType =
