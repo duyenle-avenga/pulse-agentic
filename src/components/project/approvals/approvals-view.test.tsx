@@ -51,6 +51,23 @@ describe('ApprovalsView', () => {
     expect(screen.getByText(/Scope v1\.1 · locked 16 Oct by Maya Patel/)).toBeInTheDocument()
   })
 
+  it('moves focus to the Decided heading after deciding', () => {
+    renderProject(<ApprovalsView />, expenseTracker)
+    const scr = card('SCR-1')
+    fireEvent.change(scr.getByLabelText('Reason'), { target: { value: 'Accountants need it' } })
+    fireEvent.click(scr.getByRole('button', { name: 'Approve SCR-1' }))
+    expect(screen.getByRole('heading', { name: 'Decided (1)' })).toHaveFocus()
+  })
+
+  it('Enter in a field never approves or rejects', () => {
+    renderProject(<ApprovalsView />, expenseTracker)
+    const scr = card('SCR-1')
+    fireEvent.change(scr.getByLabelText('Reason'), { target: { value: 'Accountants need it' } })
+    fireEvent.submit(scr.getByRole('form', { name: 'Decide SCR-1' }))
+    expect(screen.getByRole('heading', { name: 'Waiting for a decision (1)' })).toBeInTheDocument()
+    expect(store.get(expenseTracker.project.id).scrs).toBeUndefined()
+  })
+
   it('shows decided SCRs from the mocks, newest first', () => {
     renderProject(<ApprovalsView />, customerPortal)
     expect(screen.getByRole('heading', { name: 'Decided (2)' })).toBeInTheDocument()

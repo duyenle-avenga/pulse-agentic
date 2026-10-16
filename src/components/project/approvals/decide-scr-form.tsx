@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, type FormEvent } from 'react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -40,13 +40,10 @@ export function DecideScrForm({ projectId, scrId, defaultApprover, now }: Props)
     getDecisionStore().decideScr(projectId, scrId, { status, decidedAt: now, decidedBy: approver.trim(), reason: reason.trim() })
   }
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    decide('approved')
-  }
-
   return (
-    <form aria-label={`Decide ${scrId}`} noValidate onSubmit={handleSubmit} className="space-y-3 border-t pt-3">
+    // Approve and Reject are equal, explicit choices (README §3.5): no submit button, so Enter
+    // in a field can't silently approve. The form groups the fields for layout and labelling only.
+    <form aria-label={`Decide ${scrId}`} noValidate onSubmit={(e) => e.preventDefault()} className="space-y-3 border-t pt-3">
       <div className="grid gap-3 sm:grid-cols-[14rem_1fr]">
         <div className="space-y-1">
           <Label htmlFor={id('approver')}>Approver</Label>
@@ -77,7 +74,7 @@ export function DecideScrForm({ projectId, scrId, defaultApprover, now }: Props)
         </ul>
       )}
       <div className="flex gap-2">
-        <Button type="submit" size="sm" aria-label={`Approve ${scrId}`}>
+        <Button type="button" size="sm" aria-label={`Approve ${scrId}`} onClick={() => decide('approved')}>
           Approve
         </Button>
         <Button type="button" size="sm" variant="outline" aria-label={`Reject ${scrId}`} onClick={() => decide('rejected')}>

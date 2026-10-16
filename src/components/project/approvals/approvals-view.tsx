@@ -15,14 +15,15 @@ export function ApprovalsView() {
     .sort((a, b) => Date.parse(b.decidedAt ?? b.raisedAt) - Date.parse(a.decidedAt ?? a.raisedAt))
 
   const decidedHeading = useRef<HTMLHeadingElement>(null)
-  const previousPendingIds = useRef(new Set(pending.map((s) => s.id)))
+  const previousPendingIds = useRef<Set<string> | null>(null)
 
   // A decided SCR's card moves out of "Waiting for a decision" into "Decided", taking its form
   // (and the focused button) with it. Follow with focus to the Decided heading, as the User
   // testing screen does when a recorded result removes an AC from its queue.
   useLayoutEffect(() => {
     const currentIds = new Set(pending.map((s) => s.id))
-    const justDecided = [...previousPendingIds.current].some((id) => !currentIds.has(id))
+    const previousIds = previousPendingIds.current
+    const justDecided = previousIds !== null && [...previousIds].some((id) => !currentIds.has(id))
     previousPendingIds.current = currentIds
     if (justDecided) decidedHeading.current?.focus()
   })
